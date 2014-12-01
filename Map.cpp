@@ -6,7 +6,7 @@ Map::Map(byte width, byte height) {
 	this->width = width;
 	this->height = height;
 	map = new boolean*[height];
-	for (int i = 0; i < height; i++) {
+	for (int i = 0; i < height; i++) { // populate the 2D array
 		map[i] = new byte[width];
 	}
 }

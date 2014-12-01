@@ -1,8 +1,8 @@
 #include <Pod.h>
 #include <Encoder.h>
 
-#define ticksPerRev 90
-#define inchesPerRev 6
+#define ticksPerRev 90.0
+#define inchesPerRev 6.0
 
 Pod::Pod(int _sPin, int _ePin):
 	sPin(_sPin),
@@ -10,7 +10,7 @@ Pod::Pod(int _sPin, int _ePin):
 }
 
 void Pod::init() {
-	servo.attach(sPin);
+	servo.attach(sPin, 1000, 2000);
 }
 
 double Pod::getDistance() {
@@ -18,5 +18,5 @@ double Pod::getDistance() {
 }
 
 void Pod::drive(double power) {
-	
+	servo.write(map(power, -1, 1, 0, 180));
 }

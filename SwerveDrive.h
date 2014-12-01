@@ -23,17 +23,17 @@ public:
 	// Default constructor
 	SwerveDrive();
 
-	// Rotates the pods to a certain angle
-	void rotatePods(double angle);
+	// Rotates the pods to a certain angle relative to the drive base
+	boolean rotatePods(int angle);
 
-	// Gets the current angle of the pods
+	// Gets the current angle of the pods relative to the drive base
 	int getAngle();
 
 	// Drives at the given power (-1 to 1 like in FRC)
 	void drive(double power);
 
 	// Drives the given distance at the given power
-	void driveDistance(double power, double distInches);
+	boolean driveDistance(double power, double distInches);
 
 	// Initializes servos. Call this in setup()
 	void init();
