@@ -27,4 +27,7 @@ const int SWERVE_POT_PIN = A11;
 
 const double DEGREES_PER_ENC_TICK = 4;
 
+const static byte FIELD_WIDTH  = 72;
+const static byte FIELD_HEIGHT = 72;
+
 #endif

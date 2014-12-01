@@ -14,14 +14,18 @@
 
 #include <SwerveDrive.h>
 #include <Constants.h>
+#include <Map.h>
+
+const byte fieldWidth = 20;
+const byte fieldHeight = 20;
 
 SwerveDrive drive;
+Map fieldMap(fieldWidth, fieldHeight);
 
 void setup() {
 	drive.init();
 }
 
 void loop() {
-
 }
 
