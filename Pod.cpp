@@ -1,12 +1,12 @@
+#include <Arduino.h>
 #include <Pod.h>
-#include <Encoder.h>
+#include <SingleInterruptEncoder.h>
+#include <Constants.h>
 
-#define ticksPerRev 90.0
 #define inchesPerRev 6.0
 
-Pod::Pod(int _sPin, int _ePin):
-	sPin(_sPin),
-	encoder(_ePin, _ePin) {
+Pod::Pod(int _sPin):
+	sPin(_sPin){
 }
 
 void Pod::init() {
@@ -14,7 +14,7 @@ void Pod::init() {
 }
 
 double Pod::getDistance() {
-	return (encoder.read() / ticksPerRev) * inchesPerRev;
+	return encoder.getTicks() * DEGREES_PER_ENC_TICK * inchesPerRev;
 }
 
 void Pod::drive(double power) {

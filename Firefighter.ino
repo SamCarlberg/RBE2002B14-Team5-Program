@@ -13,19 +13,101 @@
  */
 
 #include <SwerveDrive.h>
+#include <Turret.h>
 #include <Constants.h>
 #include <Map.h>
+#include <LiquidCrystal.h>
 
-const byte fieldWidth = 20;
+
+const byte fieldWidth  = 20;
 const byte fieldHeight = 20;
 
+LiquidCrystal lcd(0,0,0,0,0,0);
 SwerveDrive drive;
+Turret turret;
 Map fieldMap(fieldWidth, fieldHeight);
+
+byte currentState = START;
+
+double robotX = 0;
+double robotY = 0;
 
 void setup() {
 	drive.init();
+	turret.init();
+	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
+	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
+	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
+	attachInterrupt(RL_ENC_PIN, updateEncoderRL, CHANGE);
 }
 
 void loop() {
+	double x = 0, y = 0;
+	switch(currentState) {
+		case START:
+			// Do stuff
+			break;
+		case MOVING:
+			// Move some set distance, then go on to SCANNING
+			if(drive.driveDistance(6)) {
+				currentState = SCANNING;
+			}
+			break;
+		case SCANNING:
+			// Move the turret and scan for obstacles and the candle
+			// if(turret.setAngle(10) && !turret.completedScan()) turret.scan();
+			// else break;
+
+			fieldMap.set(robotX + turret.getObstacleLocation().x,
+						 robotY + turret.getObstacleLocation().y,
+						 true); // set the point at (x, y) to have an obstacle
+
+			if(!isNullPoint(turret.getFlameLocation())) {
+				currentState = EXTINGUISHING;
+			} else {
+				currentState = MOVING;
+			}
+			
+			break;
+		case EXTINGUISHING:
+			/*
+				if(flameVisible) turret.extinguishFlame();
+				else currentState = RETURNING;
+
+			 */
+			break;
+		case RETURNING:
+			/*
+				either backtrack exactly
+				or use A* or Djikstra's algorithm to go back to the start
+
+				if(atStart()) currentState = COMPLETE;
+				else goBackToStart();
+
+			 */
+			break;
+		case COMPLETE:
+			/*
+				Display the x, y, z coordinates of the flame on the LCD.
+			 */
+			break;
+		default:
+			return;
+	}
 }
 
+void updateEncoderFR() {
+	// drive.frontRight.encoder.update();
+}
+
+void updateEncoderFL() {
+	// drive.frontLeft.encoder.update();
+}
+
+void updateEncoderRR() {
+	// drive.rearRight.encoder.update();	
+}
+
+void updateEncoderRL() {
+	// drive.rearLeft.encoder.update();
+}
