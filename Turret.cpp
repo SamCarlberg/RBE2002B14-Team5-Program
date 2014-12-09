@@ -10,7 +10,7 @@ void Turret::init() {
 }
 
 double Turret::getAngle() {
-	return int(pot.getAngle()) % 360;
+	return pot.getAngle();
 }
 
 double Turret::getDistance() {

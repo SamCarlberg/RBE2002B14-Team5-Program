@@ -26,13 +26,16 @@ public:
 
 	// Rotates the pods to a certain angle relative to the drive base
 	// Returns true if the pods have rotated all the way, otherwise returns false
-	boolean rotatePods(int angle);
+	// Tolerance is in degrees and defaults to 5
+	boolean rotatePods(int angle, int tolerance = 5);
 
 	// Gets the current angle of the pods relative to the drive base
 	int getAngle();
 
 	// Drives at the given power (-1 to 1 like in FRC)
 	void drive(double power);
+
+	void driveRPM(double rpm);
 
 	// Drives the given distance
 	// Returns true once the robot has driven that distance
@@ -42,12 +45,12 @@ public:
 	void init();
 	
 	Pod frontRight, frontLeft, rearRight, rearLeft;
+	Servo swerveMotor;
 
 private:
 	TenTurnPot pot;
 	int frPin, flPin, rrPin, rlPin;
 	int swerveMotorPin;
-	Servo swerveMotor;
 };
 
 #endif

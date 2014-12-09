@@ -19,14 +19,21 @@ class Pod {
 
 		// Gets the distance travelled (in inches) by the pod
 		double getDistance();
-
-		// Drives the pod at the given power (-1 to 1 like in FRC)
+		
 		void drive(double power);
 
+		// Drives the pod at the given speed.
+		void driveRPM(double rpm);
+
 		SingleInterruptEncoder encoder;
+
 	private:
-		int sPin;
 		Servo servo;
+		int sPin;
+		double calcPID(double input, double setpoint);
+		double curSpeed;
+		double p, i, d;
+		double lastError;
 };
 
 #endif

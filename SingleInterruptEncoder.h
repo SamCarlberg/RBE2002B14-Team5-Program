@@ -20,6 +20,11 @@ public:
 
 	// Gets the rotational speed of the encoder shaft.
 	double getRPM();
+
+	void reset() {
+		rpm = 0;
+		ticks = 0;
+	}
 private:
 	double rpm;
 	volatile uint32_t ticks;
