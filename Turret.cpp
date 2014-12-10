@@ -2,7 +2,9 @@
 #include <Constants.h>
 #include <Turret.h>
 
-Turret::Turret(): pot(1) {
+Turret::Turret():
+	pot(1),
+	rangeSensor(TURRET_ULTRA_PIN){
 }
 
 void Turret::init() {
@@ -14,8 +16,7 @@ double Turret::getAngle() {
 }
 
 double Turret::getDistance() {
-	// return rangeFinder.read();
-	return -1;
+	return rangeSensor.getRangeInches();
 }
 
 Point Turret::getObstacleLocation() {

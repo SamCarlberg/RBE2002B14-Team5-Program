@@ -57,7 +57,7 @@ private:
 	double distance;
 	boolean finishedScan;
 	double distToFlame;
-	// Ultrasonic rangeSensor;
+	Ultrasonic rangeSensor;
 };
 
 #endif

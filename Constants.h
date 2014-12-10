@@ -46,6 +46,7 @@ const double DEGREES_PER_ENC_TICK = 2.0; // 180 ticks per rev (counting rising a
  *  Turret constants.
  */
 const int TURRET_MOTOR_PIN = 4; // Change this to match the physical robot
+const int TURRET_ULTRA_PIN = A6;
 
 /*
  * Fan constant(s)
