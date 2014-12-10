@@ -53,14 +53,27 @@ const int TURRET_MOTOR_PIN = 4; // Change this to match the physical robot
 const static byte FIELD_WIDTH  = 72; // inches
 const static byte FIELD_HEIGHT = 72;
 
+/*
+ *  Light sensor constants
+ */
+const static int FRONT_LS_PIN = A10;
+const static int RIGHT_LS_PIN = A9;
+const static int REAR_LS_PIN = A8;
+const static int LEFT_LS_PIN = A7;
+
+const static int LS_BLACK_VALUE = 700; // a light sensor reading less than this is "black"
+
+// Helper macro that evaluates to true if the given light sensor value is "black"
+#define isBlack(lsVal) ((lsVal) < LS_BLACK_VALUE)
+
 
 /*
  *  State machine constants.
  */
-enum STATE {
+enum State {
 	START,
-	MOVING,
 	SCANNING,
+	MOVING,
 	CALCULATING,
 	EXTINGUISHING,
 	RETURNING,

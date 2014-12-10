@@ -49,18 +49,16 @@ public:
 	// Drives the robot in a straight line
 	void driveStraight(double power);
 
-	// Gets the current gyro angle
+	// Polls the gyro if neccessary and returns the current gyro angle
 	double pollGyro();
 	
 	Pod frontRight, frontLeft, rearRight, rearLeft;
 	Servo swerveMotor;
 
 private:
-	L3G gyro;
-	RunningMedian xGyroFilter;
+	L3G gyro; // 3-axis gyro object
+	RunningMedian xGyroFilter; // filter for the x-axis gyro
 	TenTurnPot pot;
-	int frPin, flPin, rrPin, rlPin;
-	int swerveMotorPin;
 	double gyroAngle;
 	long lastMillis;
 };

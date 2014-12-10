@@ -36,7 +36,7 @@ double robotY = 0;
 void setup() {
 	Serial.begin(9600);
 	// turret.init();
-	drive.init();
+	// drive.init();
 	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
 	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
@@ -44,8 +44,6 @@ void setup() {
 }
 
 void loop() {
-	// testDrivesWithTurns();
-	drive.driveStraight(50);
 }
 
 void runStateMachine() {
@@ -54,20 +52,10 @@ void runStateMachine() {
 	switch(currentState) {
 		case START:
 			// Do stuff
-			break;
-		case MOVING:
-			// Move some set distance, then go on to SCANNING
-			if(drive.driveDistance(dist)) {
-				robotX += sin(drive.getAngle()) * dist;
-				robotY += cos(drive.getAngle()) * dist;
-				currentState = SCANNING;
-			}
+			currentState = SCANNING;
 			break;
 		case SCANNING:
-			// Move the turret and scan for obstacles and the candle
-			// if(turret.setAngle(10) && !turret.completedScan()) turret.scan();
-			// else break;
-
+			// Move the turret and scan for obstacles and flame
 			fieldMap.set(robotX + turret.getObstacleLocation().x,
 						 robotY + turret.getObstacleLocation().y,
 						 true); // set the point at (x, y) to have an obstacle
@@ -78,6 +66,14 @@ void runStateMachine() {
 				currentState = MOVING;
 			}
 			
+			break;
+		case MOVING:
+			// Move some set distance, then go on to SCANNING
+			if(drive.driveDistance(dist)) {
+				robotX += sin(drive.getAngle()) * dist;
+				robotY += cos(drive.getAngle()) * dist;
+				currentState = SCANNING;
+			}
 			break;
 		case EXTINGUISHING:
 			/*

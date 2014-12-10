@@ -7,7 +7,7 @@
 #define Kp 0.001 // TUNE THIS
 #define Ki 0.000
 #define Kd 0.01
-#define INCHES_PER_TICK (((2.75) * PI) / 180.0) // = 0.011999
+#define INCHES_PER_TICK ((2.75 * PI) / 180.0) // = 0.04799
 
 Pod::Pod(int _sPin):
 	sPin(_sPin) {
@@ -29,8 +29,7 @@ void Pod::drive(double power) {
 }
 
 void Pod::driveRPM(double rpm) {
-	double pid = this->calcPID(encoder.getRPM(), rpm);
-	if(millis() % 100 == 0) Serial.println((String)sPin + "\tCurrent RPM: " + (String)encoder.getRPM() + "\tPID: " + (String)pid);
+	double pid = calcPID(encoder.getRPM(), rpm);
 	curSpeed = constrain(curSpeed + calcPID(encoder.getRPM(), rpm), 90, 180);
 	servo.write(curSpeed);
 }
