@@ -16,13 +16,9 @@
 #include <Turret.h>
 #include <Constants.h>
 #include <Map.h>
-#include <LiquidCrystal.h> 
-#include <Wire.h>
-#include <L3G.h>
+#include <LiquidCrystal.h>
 #include <RunningMedian.h>
-
-#define NUM_FILTER_SAMPLES 21
-#define GYRO_POLL_PERIOD 20 // ms
+#include <L3G.h>
 
 const byte fieldWidth  = 20;
 const byte fieldHeight = 20;
@@ -31,9 +27,6 @@ const byte fieldHeight = 20;
 SwerveDrive drive;
 Turret turret;
 Map fieldMap(fieldWidth, fieldHeight);
-L3G gyro;
-
-RunningMedian xFilter(NUM_FILTER_SAMPLES); // we only care about the gyro on the X axis
 
 byte currentState = START;
 
@@ -42,59 +35,17 @@ double robotY = 0;
 
 void setup() {
 	Serial.begin(9600);
-	drive.init();
 	// turret.init();
+	drive.init();
 	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
 	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
 	attachInterrupt(RL_ENC_PIN, updateEncoderRL, CHANGE);
-	xFilter.clear();
 }
 
-boolean rotated = false, drove = false;
 void loop() {
-	if(!rotated && drive.rotatePods(0, 2)) {
-		// Serial.println("Done!");
-		// Serial.println(drive.getAngle());
-		// Serial.println(analogRead(A11));
-		rotated = true;
-	}
-	if(rotated && !drove && drive.driveDistance(24)) {
-		drove = true;
-	}
-}
-
-// Drives one pod
-void testPodRPM(double rpm) {
-	drive.frontLeft.driveRPM(rpm);
-}
-
-void testDrivePower(double power) {
-	drive.drive(power);
-}
-
-// Drives all pods
-void testDriveRPM(double rpm) {
-	drive.driveRPM(rpm);
-}
-
-// Moves the pods to face forwards
-void testSwerve(int angle) {
-	while(drive.rotatePods(angle));
-}
-
-void testGyro() {
-	pollGyro();
-}
-
-long lastMillis = 0;
-float pollGyro() {
-	if(millis() - lastMillis >= GYRO_POLL_PERIOD) {
-		lastMillis = millis();
-		gyro.read();
-		xFilter.add(gyro.g.x);
-	}
-	return xFilter.getMedian();
+	// testDrivesWithTurns();
+	drive.driveStraight(50);
 }
 
 void runStateMachine() {
@@ -154,6 +105,8 @@ void runStateMachine() {
 			return;
 	}
 }
+
+
 
 // Glue for attaching interrupts
 void updateEncoderFR() {

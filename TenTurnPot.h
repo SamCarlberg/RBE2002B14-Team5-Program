@@ -9,7 +9,7 @@
 #include <Arduino.h>
 
 #define ZERO 670
-#define MINUS_90 (ZERO - 128) // 450/3600 * 1023
+#define MINUS_90 (ZERO + 128) // 450/3600 * 1023
 
 class TenTurnPot {
 public:

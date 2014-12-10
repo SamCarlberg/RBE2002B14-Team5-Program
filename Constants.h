@@ -9,6 +9,8 @@
  *  Helper macro function(s)
  */
 #define isNullPoint(p) (p.x == 0 && p.y == 0)
+#define sign(x) ((x) < 0 ? -1 : (x) > 0 ? 1 : 0)
+#define toRad(deg) ((deg) * PI / 180.0)
 
 struct Point {
 	Point(double a, double b): x(a), y(b){}
@@ -27,10 +29,10 @@ enum SwerveServoPins {
 };
 
 enum SwerveEncoderPins {
-	FR_ENC_PIN	= 5, // pin 20
-	FL_ENC_PIN	= 1, // pin 18
-	RR_ENC_PIN	= 3, // pin 3
-	RL_ENC_PIN	= 4  // pin 19
+	FR_ENC_PIN	= 1, // pin 3
+	FL_ENC_PIN	= 0, // pin 2
+	RR_ENC_PIN	= 4, // pin 19
+	RL_ENC_PIN	= 5  // pin 18
 };
 
 const int SWERVE_POT_PIN = A11;
