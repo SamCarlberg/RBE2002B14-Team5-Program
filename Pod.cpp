@@ -30,7 +30,7 @@ void Pod::drive(double power) {
 
 void Pod::driveRPM(double rpm) {
 	double pid = this->calcPID(encoder.getRPM(), rpm);
-	if(millis() % 100 == 0) Serial.println((String)sPin + "\tCurrent RPM: " + (String)encoder.getRPM() + "\tPID: " + (String)pid);
+	//if(millis() % 100 == 0) Serial.println((String)sPin + "\tCurrent RPM: " + (String)encoder.getRPM() + "\tPID: " + (String)pid);
 	curSpeed = constrain(curSpeed + calcPID(encoder.getRPM(), rpm), 90, 180);
 	servo.write(curSpeed);
 }

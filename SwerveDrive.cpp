@@ -58,7 +58,7 @@ void SwerveDrive::driveRPM(double rpm) {
 
 double distanceTravelled = 0;
 boolean SwerveDrive::driveDistance(double distInches) {
-	Serial.println("Drove: " + String(distanceTravelled));
+	//Serial.println("Drove: " + String(distanceTravelled));
 	if(distanceTravelled >= distInches) { // have we driven that far?
 		drive(90); // stop the motors
 		frontLeft.encoder.reset();

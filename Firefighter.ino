@@ -20,6 +20,7 @@
 #include <Wire.h>
 #include <L3G.h>
 #include <RunningMedian.h>
+#include <Fan.h>
 
 #define NUM_FILTER_SAMPLES 21
 #define GYRO_POLL_PERIOD 20 // ms
@@ -32,6 +33,7 @@ SwerveDrive drive;
 Turret turret;
 Map fieldMap(fieldWidth, fieldHeight);
 L3G gyro;
+Fan fan;
 
 RunningMedian xFilter(NUM_FILTER_SAMPLES); // we only care about the gyro on the X axis
 
@@ -44,6 +46,7 @@ void setup() {
 	Serial.begin(9600);
 	drive.init();
 	// turret.init();
+	fan.init();
 	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
 	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
