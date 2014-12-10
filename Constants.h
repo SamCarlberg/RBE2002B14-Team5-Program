@@ -48,6 +48,11 @@ const double DEGREES_PER_ENC_TICK = 2.0; // 180 ticks per rev (counting rising a
 const int TURRET_MOTOR_PIN = 4; // Change this to match the physical robot
 
 /*
+ * Fan constant(s)
+ */
+const int FAN_MOTOR_PIN = 8;//change this to match the physical robot
+
+/*
  *  Map constants. Tune these!
  */
 const static byte FIELD_WIDTH  = 72; // inches
