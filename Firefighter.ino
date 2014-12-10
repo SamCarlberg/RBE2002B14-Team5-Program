@@ -17,8 +17,10 @@
 #include <Constants.h>
 #include <Map.h>
 #include <LiquidCrystal.h>
-#include <RunningMedian.h>
+#include <Fan.h>
 #include <L3G.h>
+#include <RunningMedian.h>
+
 
 const byte fieldWidth  = 20;
 const byte fieldHeight = 20;
@@ -27,6 +29,7 @@ const byte fieldHeight = 20;
 SwerveDrive drive;
 Turret turret;
 Map fieldMap(fieldWidth, fieldHeight);
+Fan fan;
 
 byte currentState = START;
 
@@ -36,7 +39,8 @@ double robotY = 0;
 void setup() {
 	Serial.begin(9600);
 	// turret.init();
-	// drive.init();
+	fan.init();
+	drive.init();
 	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
 	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
