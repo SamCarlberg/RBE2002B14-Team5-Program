@@ -17,6 +17,8 @@
 #include <Servo.h>
 #include <Pod.h>
 #include <TenTurnPot.h>
+#include <L3G.h>
+#include <RunningMedian.h>
 
 class SwerveDrive {
 
@@ -43,14 +45,24 @@ public:
 
 	// Initializes servos. Call this in setup()
 	void init();
+
+	// Drives the robot in a straight line
+	void driveStraight(double power);
+
+	// Gets the current gyro angle
+	double pollGyro();
 	
 	Pod frontRight, frontLeft, rearRight, rearLeft;
 	Servo swerveMotor;
 
 private:
+	L3G gyro;
+	RunningMedian xGyroFilter;
 	TenTurnPot pot;
 	int frPin, flPin, rrPin, rlPin;
 	int swerveMotorPin;
+	double gyroAngle;
+	long lastMillis;
 };
 
 #endif
