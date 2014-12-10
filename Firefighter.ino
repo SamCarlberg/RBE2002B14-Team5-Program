@@ -17,15 +17,19 @@
 #include <Constants.h>
 #include <Map.h>
 #include <LiquidCrystal.h>
+#include <Fan.h>
+#include <L3G.h>
+#include <RunningMedian.h>
 
 
 const byte fieldWidth  = 20;
 const byte fieldHeight = 20;
 
-LiquidCrystal lcd(0,0,0,0,0,0);
+// LiquidCrystal lcd(0,0,0,0,0,0);
 SwerveDrive drive;
 Turret turret;
 Map fieldMap(fieldWidth, fieldHeight);
+Fan fan;
 
 byte currentState = START;
 
@@ -33,8 +37,10 @@ double robotX = 0;
 double robotY = 0;
 
 void setup() {
+	Serial.begin(9600);
+	// turret.init();
+	fan.init();
 	drive.init();
-	turret.init();
 	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
 	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
@@ -42,22 +48,18 @@ void setup() {
 }
 
 void loop() {
+}
+
+void runStateMachine() {
 	double x = 0, y = 0;
+	double dist = 6; // inches
 	switch(currentState) {
 		case START:
 			// Do stuff
-			break;
-		case MOVING:
-			// Move some set distance, then go on to SCANNING
-			if(drive.driveDistance(6)) {
-				currentState = SCANNING;
-			}
+			currentState = SCANNING;
 			break;
 		case SCANNING:
-			// Move the turret and scan for obstacles and the candle
-			// if(turret.setAngle(10) && !turret.completedScan()) turret.scan();
-			// else break;
-
+			// Move the turret and scan for obstacles and flame
 			fieldMap.set(robotX + turret.getObstacleLocation().x,
 						 robotY + turret.getObstacleLocation().y,
 						 true); // set the point at (x, y) to have an obstacle
@@ -68,6 +70,14 @@ void loop() {
 				currentState = MOVING;
 			}
 			
+			break;
+		case MOVING:
+			// Move some set distance, then go on to SCANNING
+			if(drive.driveDistance(dist)) {
+				robotX += sin(drive.getAngle()) * dist;
+				robotY += cos(drive.getAngle()) * dist;
+				currentState = SCANNING;
+			}
 			break;
 		case EXTINGUISHING:
 			/*
@@ -81,7 +91,7 @@ void loop() {
 				either backtrack exactly
 				or use A* or Djikstra's algorithm to go back to the start
 
-				if(atStart()) currentState = COMPLETE;
+				if(atStart) currentState = COMPLETE;
 				else goBackToStart();
 
 			 */
@@ -96,18 +106,21 @@ void loop() {
 	}
 }
 
+
+
+// Glue for attaching interrupts
 void updateEncoderFR() {
-	// drive.frontRight.encoder.update();
+	drive.frontRight.encoder.update();
 }
 
 void updateEncoderFL() {
-	// drive.frontLeft.encoder.update();
+	drive.frontLeft.encoder.update();
 }
 
 void updateEncoderRR() {
-	// drive.rearRight.encoder.update();	
+	drive.rearRight.encoder.update();	
 }
 
 void updateEncoderRL() {
-	// drive.rearLeft.encoder.update();
+	drive.rearLeft.encoder.update();
 }

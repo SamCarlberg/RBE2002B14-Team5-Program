@@ -10,7 +10,7 @@ void Turret::init() {
 }
 
 double Turret::getAngle() {
-	return int(pot.getAngle()) % 360;
+	return pot.getAngle();
 }
 
 double Turret::getDistance() {
@@ -40,13 +40,13 @@ boolean Turret::setAngle(int angle) {
 	return false;
 }
 
-int angle = 0;
+int curAngle = 0;
 const int increment = 10; // degrees
 const int MAX_ANGLE = 180;
 const int MIN_ANGLE = 0;
 
 void Turret::scan() {
-	if(angle == MAX_ANGLE) {
+	if(curAngle == MAX_ANGLE) {
 		finishedScan = true;
 		angle = MIN_ANGLE;
 		return;
@@ -55,7 +55,7 @@ void Turret::scan() {
 		getFlameLocation();
 		angle += increment;
 	}
-	setAngle(angle);
+	setAngle(curAngle);
 }
 
 boolean Turret::completedScan() {

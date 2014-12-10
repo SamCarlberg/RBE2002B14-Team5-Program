@@ -2,18 +2,43 @@
 #include <SwerveDrive.h>
 #include <Pod.h>
 #include <Constants.h>
+#include <Wire.h>
 
+
+// Constants for gyro filtering and adjustment
+#define GYRO_POLL_PERIOD 20
+#define GYRO_POS_OFFSET 142
+#define GYRO_NEG_OFFSET 143
+#define NUM_FILTER_SAMPLES (10)
+#define kGyro (75.0/8500.0)
+
+// Constants for driving straight
+#define frShift (45 + 90 * 0)
+#define rrShift (45 + 90 * 1)
+#define rlShift (45 + 90 * 2)
+#define flShift (45 + 90 * 3)
+#define KpStraight 2.5
 
 SwerveDrive::SwerveDrive():
 	frontRight(FR_MOTOR_PIN),
 	frontLeft(FL_MOTOR_PIN),
 	rearRight(RR_MOTOR_PIN),
 	rearLeft(RL_MOTOR_PIN),
-	pot(SWERVE_POT_PIN) {
+	pot(SWERVE_POT_PIN),
+	xGyroFilter(NUM_FILTER_SAMPLES) {
+	gyroAngle = 0;
+	lastMillis = 0;
 }
 
 void SwerveDrive::init() {
-	swerveMotor.attach(CENTER);
+	Wire.begin();
+	if(!gyro.init()) {
+		Serial.println("Could not initialize gyro!");
+		while(1);
+	}
+	gyro.enableDefault();
+	xGyroFilter.clear();
+	swerveMotor.attach(CENTER, 1000, 2000);
 	frontRight.init();
 	frontLeft.init();
 	rearRight.init();
@@ -22,21 +47,23 @@ void SwerveDrive::init() {
 
 int turningPower = 0;
 
-boolean SwerveDrive::rotatePods(int angle) {
-	angle %= 360; // make sure that the given angle is in the range (0, 360]
-	int error = getAngle() - angle;
-	if(getAngle() == angle) {
+boolean SwerveDrive::rotatePods(int angle, int tolerance) {
+	int error = angle - getAngle();
+	Serial.println("Error = " + String(error));
+	if(abs(error) <= tolerance) {
 		swerveMotor.write(90);
+		drive(90);
 		return true;
 	}
-	double power = map(error, -359, 359, -1, 1);
-	power = sq(power); // squared for lower speed at small angles
+	double power = constrain(error*5.0 + 90, 0, 180);
+	double motorCorrection = (constrain(error*5.0 + 90, 0, 180) - 90)/5.0 + 90;
+	drive(motorCorrection);
 	swerveMotor.write(power);
 	return false;
 }
 
 int SwerveDrive::getAngle() { 
-	return int(pot.getAngle()) % 360; // return a number in (0,360]
+	return pot.getAngle();
 }
 
 void SwerveDrive::drive(double power) {
@@ -46,17 +73,65 @@ void SwerveDrive::drive(double power) {
 	rearLeft.drive(power);
 }
 
+void SwerveDrive::driveRPM(double rpm) {
+	frontRight.driveRPM(rpm);
+	frontLeft.driveRPM(rpm);
+	rearRight.driveRPM(rpm);
+	rearLeft.driveRPM(rpm);
+}
+
+// pod power = Kp * gyroAngle * sin(swerveAngle + 45 + 90 * podNum)
+// FR = 1
+// RR = 2
+// RL = 3
+// FL = 4
+void SwerveDrive::driveStraight(double power) {
+	double frPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + frShift));
+	double flPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + flShift));
+	double rrPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + rrShift));
+	double rlPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + rlShift));
+
+	frontRight.drive(constrain(frPower, 0, 180));
+	frontLeft.drive(constrain(flPower, 0, 180));
+	rearRight.drive(constrain(rrPower, 0, 180));
+	rearLeft.drive(constrain(rlPower, 0, 180));
+}
+
 double distanceTravelled = 0;
 boolean SwerveDrive::driveDistance(double distInches) {
-	if(distanceTravelled == distInches) { // have we driven that far?
-		drive(0); // stop the motors
+	//Serial.println("Drove: " + String(distanceTravelled));
+	if(distanceTravelled >= distInches) { // have we driven that far?
+		drive(90); // stop the motors
+		frontLeft.encoder.reset();
+		frontRight.encoder.reset();
+		rearLeft.encoder.reset();
+		rearRight.encoder.reset();
 		distanceTravelled = 0; // reset distanceTravelled
 		return true;
 	}
-	// simple P control
-	double error = distInches - distanceTravelled;
-	double power = map(error, 0, distInches, -1, 1);
-	power = sq(power); // squared for lower speed at small distances
-	drive(power);
+	double avgDistance = (frontLeft.getDistance() + frontRight.getDistance() + rearLeft.getDistance() + rearRight.getDistance()) / 4.0;
+	distanceTravelled = avgDistance;
+	driveStraight(60);
 	return false;
+}
+
+double SwerveDrive::pollGyro() {
+	long curTime = millis();
+	if(curTime - lastMillis >= GYRO_POLL_PERIOD) {
+		gyro.read();
+		double offsetReading = gyro.g.x;
+
+		// rate offset changes if the angle is positive or negative (very weird)
+		if(gyroAngle > 0) {
+			offsetReading -= GYRO_POS_OFFSET;
+		} else {
+			offsetReading -= GYRO_NEG_OFFSET;
+		}
+
+		xGyroFilter.add(offsetReading);
+
+		gyroAngle += kGyro * ((xGyroFilter.getAverage() * GYRO_POLL_PERIOD)/ 1000.0);
+		lastMillis = curTime;
+	}
+	return gyroAngle;
 }
