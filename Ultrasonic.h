@@ -1,6 +1,6 @@
 /*
-	Class representing a Maxbotix ultrasonic sensor. This class uses the analog output of
-	the sensor to calculate the range.
+	Class representing a Vex ultrasonic sensor.
+	This uses two digital pins (one trigger and one echo).
  */
 
 #ifndef Ultrasonic_h
@@ -8,21 +8,21 @@
 
 class Ultrasonic {
 	public:
-		// Constructor. Takes the analog pin to read from
-		Ultrasonic(int);
+		// Constructor. Parameters are trigger and echo pins
+		Ultrasonic(int, int);
 
 		// Gets the range, in inches
 		double getRangeInches();
-
-		// Gets the range, in mm
-		double getRangeMM();
+		
 	private:
-		// Polls the ultrasonic for new data.
-		// The sensor updates every 100 ms.
+		// Polls the sensor to get a new reading
 		void poll();
-		int raw;
-		int analogPin;
-		long lastTime;
+
+		// Digital trigger and echo pins
+		int trigger, echo;
+
+		// Distance in inches to nearest obstacle
+		double distance;
 };
 
 #endif

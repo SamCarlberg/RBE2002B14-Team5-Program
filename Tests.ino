@@ -54,3 +54,15 @@ void testDrivesWithTurns() {
 	}
 }
 
+void testUltrasonic() {
+	Ultrasonic u(ULTRASONIC_TRIGGER_PIN, ULTRASONIC_ECHO_PIN);
+	double dist = u.getRangeInches();
+	lcd.clear();
+	lcd.print(dist, DEC);
+	Serial.print(dist); Serial.print('\n');
+}
+
+void testFan() {
+	fan.speedUp();
+}
+
