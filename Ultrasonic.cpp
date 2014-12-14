@@ -1,25 +1,28 @@
 #include <Ultrasonic.h>
 #include <Arduino.h>
+#include <RunningMedian.h>
 
-#define POLL_PERIOD 100 // ms
+#define INCHES_PER_MICROSECOND (0.01351) // speed of sound at STP
 
-Ultrasonic::Ultrasonic(int pin): analogPin(pin) {
-
+Ultrasonic::Ultrasonic(int _trigger, int _echo): trigger(_trigger), echo(_echo) {
+	pinMode(trigger, OUTPUT);
+	pinMode(echo, INPUT);
+	distance = 0;
 }
 
 double Ultrasonic::getRangeInches() {
-	return getRangeMM() / 25.4;
+	poll();
+	return distance;
 }
-
-double Ultrasonic::getRangeMM() {
-	if(millis() - lastTime >= POLL_PERIOD) { //TODO change to use timer1
-		lastTime = millis();
-		poll();
-	}
-	return raw * 5;
-}
-
 
 void Ultrasonic::poll() {
-	raw = analogRead(analogPin);
+	digitalWrite(trigger, LOW);
+	delayMicroseconds(2);
+	digitalWrite(trigger, HIGH);
+	delayMicroseconds(10);
+	digitalWrite(trigger, LOW);
+	long duration = pulseIn(echo, HIGH); // returns micros
+	delay(20);
+
+	distance = duration * INCHES_PER_MICROSECOND / 2;
 }

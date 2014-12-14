@@ -20,15 +20,12 @@
 #include <Fan.h>
 #include <L3G.h>
 #include <RunningMedian.h>
+#include <Ultrasonic.h>
 
-
-const byte fieldWidth  = 20;
-const byte fieldHeight = 20;
-
-// LiquidCrystal lcd(0,0,0,0,0,0);
+LiquidCrystal lcd(53, 51, 49, 47, 45, 43);
 SwerveDrive drive;
 Turret turret;
-Map fieldMap(fieldWidth, fieldHeight);
+Map fieldMap;
 Fan fan;
 
 byte currentState = START;
@@ -38,20 +35,34 @@ double robotY = 0;
 
 void setup() {
 	Serial.begin(9600);
-	// turret.init();
-	fan.init();
-	drive.init();
+	lcd.begin(16, 2);
+	turret.init();
+	// fan.init();
+	// drive.init();
 	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
 	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
 	attachInterrupt(RL_ENC_PIN, updateEncoderRL, CHANGE);
 }
 
+boolean scanned = false;
 void loop() {
+// 	if(!scanned && turret.scan()) {
+// 		scanned = true;
+// 	}
+// 	if(scanned) {
+// 		if(turret.setAngle(0)) {
+// 			while(1);
+// 		}
+// 	}
+	if(turret.processIRData()) {
+		Serial.print("\n\n");
+		while(1);
+	}
 }
 
+boolean turretScanned = false;
 void runStateMachine() {
-	double x = 0, y = 0;
 	double dist = 6; // inches
 	switch(currentState) {
 		case START:
@@ -59,17 +70,24 @@ void runStateMachine() {
 			currentState = SCANNING;
 			break;
 		case SCANNING:
-			// Move the turret and scan for obstacles and flame
-			fieldMap.set(robotX + turret.getObstacleLocation().x,
-						 robotY + turret.getObstacleLocation().y,
-						 true); // set the point at (x, y) to have an obstacle
-
-			if(!isNullPoint(turret.getFlameLocation())) {
-				currentState = EXTINGUISHING;
-			} else {
-				currentState = MOVING;
+			if(!turretScanned && turret.scan()) {
+				turretScanned = true;
 			}
-			
+			if(turretScanned) {
+				// Process obstacles
+				for(int i = 0; i < ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT); i++) {
+					Point obstacleLoc = *turret.obstacles[i];
+					fieldMap.set(robotX + obstacleLoc.x,
+								 robotY + obstacleLoc.y,
+								 true);
+				}
+				// Process IR data
+				if(turret.processIRData()) {
+					currentState = EXTINGUISHING;
+				} else {
+					currentState = MOVING;
+				}
+			}			
 			break;
 		case MOVING:
 			// Move some set distance, then go on to SCANNING
@@ -89,7 +107,7 @@ void runStateMachine() {
 		case RETURNING:
 			/*
 				either backtrack exactly
-				or use A* or Djikstra's algorithm to go back to the start
+				or use A* or Dijkstra's algorithm to go back to the start
 
 				if(atStart) currentState = COMPLETE;
 				else goBackToStart();

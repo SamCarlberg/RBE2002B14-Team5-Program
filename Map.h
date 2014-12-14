@@ -7,12 +7,13 @@
 #define Map_h
 
 #include <Arduino.h>
+#include <Constants.h>
 
 class Map {
 
 	public:
 		// Constructor
-		Map(byte width, byte height);
+		Map();
 
 		// Sets the given location as having an obstacle
 		void set(double x, double y, boolean);
@@ -23,7 +24,7 @@ class Map {
 	private:
 		byte width, height;
 		byte cellSize;
-		boolean** map;
+		byte map[MAP_WIDTH][MAP_HEIGHT];
 
 };
 

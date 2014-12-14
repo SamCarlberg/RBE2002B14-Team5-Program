@@ -2,6 +2,7 @@
 #include <Constants.h>
 #include <Fan.h>
 
+#define MAX_SPEED 80 // percent
 #define SPEED_INTERVAL 350
 #define SLOW_INTERVAL 150
 #define SPEED_UP_BY 5
@@ -17,7 +18,7 @@ void Fan::init() {
 }
 
 void Fan::speedUp() {
-	if(curSpeed < 80 && millis() >= (prevMillis + SPEED_INTERVAL)) {
+	if(curSpeed < MAX_SPEED && millis() >= (prevMillis + SPEED_INTERVAL)) {
 		setSpeed(curSpeed + 5);
 		prevMillis = millis();
 	}
@@ -39,7 +40,7 @@ boolean Fan::isStopped() {
 }
 
 boolean Fan::isAtMaxSpeed() {
-	return curSpeed == 80;
+	return curSpeed == MAX_SPEED;
 }
 
 void Fan::arm() {

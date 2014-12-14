@@ -8,14 +8,9 @@
 /*
  *  Helper macro function(s)
  */
-#define isNullPoint(p) (p.x == 0 && p.y == 0)
 #define sign(x) ((x) < 0 ? -1 : (x) > 0 ? 1 : 0)
 #define toRad(deg) ((deg) * PI / 180.0)
-
-struct Point {
-	Point(double a, double b): x(a), y(b){}
-	double x, y;
-};
+#define toDeg(rad) ((rad) * 180.0 / PI)
 
 /*
  *  Swerve drive constants. Change these!
@@ -45,19 +40,24 @@ const double DEGREES_PER_ENC_TICK = 2.0; // 180 ticks per rev (counting rising a
 /*
  *  Turret constants.
  */
-const int TURRET_MOTOR_PIN = 4; // Change this to match the physical robot
-const int TURRET_ULTRA_PIN = A6;
+const int TURRET_MOTOR_PIN			= 10; // Change this to match the physical robot
+const int TURRET_POT_PIN 			= A0; // analog
+const int ULTRASONIC_TRIGGER_PIN	= 22;
+const int ULTRASONIC_ECHO_PIN		= 24;
 
 /*
  * Fan constant(s)
  */
-const int FAN_MOTOR_PIN = 8;//change this to match the physical robot
+const int FAN_MOTOR_PIN = 9;//change this to match the physical robot
 
 /*
  *  Map constants. Tune these!
  */
-const static byte FIELD_WIDTH  = 72; // inches
-const static byte FIELD_HEIGHT = 72;
+const static byte FIELD_WIDTH  = 96; // inches
+const static byte FIELD_HEIGHT = 96;
+
+const static byte MAP_WIDTH	 = 16; // cells are 6 inches on a side
+const static byte MAP_HEIGHT = 16;
 
 /*
  *  Light sensor constants

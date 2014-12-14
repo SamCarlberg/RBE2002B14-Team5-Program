@@ -13,6 +13,19 @@
 #include <Constants.h>
 #include <Ultrasonic.h>
 #include <TenTurnPot.h>
+#include <Map.h>
+#include <Point.h>
+
+#define ANGLE_INCREMENT 5
+#define MAX_ANGLE 180
+#define MIN_ANGLE 0
+
+#define SERVO_ANGLE_INCREMENT 5
+#define SERVO_MAX_ANGLE 180
+#define SERVO_MIN_ANGLE 0
+
+#define IR_DATA_COLS ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT)
+#define IR_DATA_ROWS ((SERVO_MAX_ANGLE - SERVO_MIN_ANGLE) / SERVO_ANGLE_INCREMENT)
 
 class Turret {
 
@@ -33,31 +46,27 @@ public:
 	// Gets the location of the closest obstacle relative to the robot.
 	Point getObstacleLocation();
 
-	// Gets the location of the flame relative to the robot.
-	// Returns (-1, -1) if no 
-	Point getFlameLocation();
-
 	// Sets the angle of the turret to the given angle.
 	// Returns true once it reaches that angle.
-	boolean setAngle(int angle);
+	boolean setAngle(double angle);
 
-	//
-	void scan();
+	// Scans 
+	boolean scan();
+	
+	// Processes IR data and tries to find the flame location
+	// Returns true once it completes
+	boolean processIRData();
 
-	// Returns true if the turret has done a complete scan
-	boolean completedScan();
 
-	// Gets the distance to the flame.
-	// Returns -1 if it can't find it
-	double getDistanceToFlame();
+	Point* obstacles[((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT)];
+
 private:
 	TenTurnPot pot;
 	Servo motor;
 	double angle;
 	double distance;
-	boolean finishedScan;
-	double distToFlame;
 	Ultrasonic rangeSensor;
+	byte irData[IR_DATA_ROWS][IR_DATA_COLS];
 };
 
 #endif

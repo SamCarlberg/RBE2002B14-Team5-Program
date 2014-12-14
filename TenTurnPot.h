@@ -14,7 +14,11 @@
 class TenTurnPot {
 public:
 	// Constructor.
-	TenTurnPot(int _pin): pin(_pin){}
+	TenTurnPot(int _pin, int _minus90 = MINUS_90, int _zero = ZERO):
+		pin(_pin), 
+		minus90(_minus90),
+		zero(_zero) {
+	}
 
 	// Gets the angle of the pot in degrees. 
 	double getAngle() {
@@ -23,6 +27,7 @@ public:
 
 private:
 	int pin;
+	int minus90, zero;
 };
 
 #endif
