@@ -40,8 +40,8 @@ public:
 	void driveRPM(double rpm);
 
 	// Drives the given distance
-	// Returns true once the robot has driven that distance
-	boolean driveDistance(double distInches);
+	// Returns the distance travelled so far
+	double driveDistance(double distInches);
 
 	// Initializes servos. Call this in setup()
 	void init();

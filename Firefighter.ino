@@ -42,7 +42,7 @@ void setup() {
 	lcd.print("Setup!");
 	turret.init();
 	// fan.init();
-	// drive.init();
+	drive.init();
 	lcd.print("Initialized");
 	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
 	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
@@ -61,7 +61,11 @@ void loop() {
 					double realX = robotX + turretX;
 					double realY = robotY + turretY;
 					fieldMap.set(realX, realY, 1); // set the point as probably having an obstacle
-					// ... and then decrease the probability in each cell that the ultrasonic ping passed through
+					// if the turret value is reasonable and is out-of-bounds,
+					// try to shift the map so that it IS in-bounds
+					// this removes the need to have a 2D array ~4x bigger than it needs to be (and keeps us within RAM limits)
+
+					// decrease the probability in each cell that the ultrasonic ping passed through
 					turret.obstacleXVals[i] = 0; // reset the values
 					turret.obstacleYVals[i] = 0;
 				}
@@ -70,21 +74,16 @@ void loop() {
 		    }
 		    break;
 	    case 1:
-	    	delay(5000); // simulate motion
-	    	robotX += 6;
-	    	state = 0;
+	    	double dist;
+	    	if((dist = drive.driveDistance(6)) >= 6) {
+	    		robotX += dist * cos(toRad(drive.getAngle()));
+	    		robotY += dist * sin(toRad(drive.getAngle()));
+	    		state = 0;
+	    	}
 	    	break;
 	}
 	lcd.clear();
 	lcd.print(turret.getAngle());
-	// switch (state) {
-	//     case 0:
-	//     	if(turret.setAngle(0)) state = 1;
-	//     	break;
-	//     case 1:
-	//     	if(turret.setAngle(180)) state = 0;
-	//     	break;
-	// }
 }
 
 boolean turretScanned = false;

@@ -108,7 +108,7 @@ void SwerveDrive::driveStraight(double power) {
 }
 
 double distanceTravelled = 0;
-boolean SwerveDrive::driveDistance(double distInches) {
+double SwerveDrive::driveDistance(double distInches) {
 	//Serial.println("Drove: " + String(distanceTravelled));
 	if(distanceTravelled >= distInches) { // have we driven that far?
 		drive(90); // stop the motors
@@ -116,13 +116,14 @@ boolean SwerveDrive::driveDistance(double distInches) {
 		frontRight.encoder.reset();
 		rearLeft.encoder.reset();
 		rearRight.encoder.reset();
+		double dist = distanceTravelled;
 		distanceTravelled = 0; // reset distanceTravelled
-		return true;
+		return dist;
 	}
 	double avgDistance = (frontLeft.getDistance() + frontRight.getDistance() + rearLeft.getDistance() + rearRight.getDistance()) / 4.0;
 	distanceTravelled = avgDistance;
 	driveStraight(60);
-	return false;
+	return distanceTravelled;
 }
 
 double SwerveDrive::pollGyro() {

@@ -1,8 +1,4 @@
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                                                                 
                                                                 
@@ -38,10 +34,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                                                                 
                                                                 
@@ -77,10 +69,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                                                                 
                                                                 
@@ -116,10 +104,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                                                                 
                                                                 
@@ -155,10 +139,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                                                                 
                                                                 
@@ -194,10 +174,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                                                                 
                                                                 
@@ -233,10 +209,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                                                                 
                     1                                           
@@ -272,12 +244,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                   1                                             
                     1                                           
@@ -313,12 +279,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                   2                                             
                     2                                           
@@ -354,13 +314,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                   3                                             
                   1 2                                           
@@ -396,16 +349,6 @@ Grid:
                                                                 
 
 Finished scan!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
-Location out of bounds!
 Grid:
                   3                                             
                   1 2                                           

@@ -57,8 +57,8 @@ const int FAN_MOTOR_PIN = 9;//change this to match the physical robot
 const static byte FIELD_WIDTH  = 96; // inches
 const static byte FIELD_HEIGHT = 96;
 
-const static byte MAP_WIDTH	 = 32; // cells are 3 inches on a side
-const static byte MAP_HEIGHT = 32;
+const static byte MAP_WIDTH	 = FIELD_WIDTH / 3; // cells are 3 inches on a side
+const static byte MAP_HEIGHT = FIELD_HEIGHT / 3;
 
 /*
  *  Light sensor constants
