@@ -30,21 +30,26 @@ byte testState = DRIVE1;
 void testDrivesWithTurns() {
 	switch (testState) {
 	    case DRIVE1:
+	    	lcd.print("DRIVE1");
 	    	if(drive.driveDistance(6)) {
+	    		lcd.clear();
 	    		testState = TURN1;
 	    	}
 	     	break;
 	     case TURN1:
-	     	if(drive.rotatePods(45)) {
+	    	lcd.print("TURN1");
+	     	if(drive.rotatePods(180)) {
 	     		testState = DRIVE2;
 	     	}
 	     	break;
 	     case DRIVE2:
+	    	lcd.print("DRIVE2");
 	     	if(drive.driveDistance(6)) {
 	     		testState = TURN2;
 	     	}
 	     	break;
 	     case TURN2:
+	    	lcd.print("TURN2");
 	     	if(drive.rotatePods(0)) {
 	     		testState = DRIVE1;
 	     	}
@@ -66,3 +71,24 @@ void testFan() {
 	fan.speedUp();
 }
 
+boolean scanned = false;
+void testMapping() {
+	if(!scanned && turret.scan()) {
+		scanned = true;
+	}
+	if(scanned) {
+		if(turret.setAngle(0)) {
+			for(int i = 0; i < ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT); i++) {
+				double x = turret.obstacleXVals[i];
+				double y = turret.obstacleYVals[i];
+				double realX = robotX + x;
+				double realY = robotY + y;
+				fieldMap.set(realX, realY, true);
+				turret.obstacleXVals[i] = 0; // reset the values
+				turret.obstacleYVals[i] = 0;
+			}
+			fieldMap.printMap();
+			while(1);
+		}
+	}
+}

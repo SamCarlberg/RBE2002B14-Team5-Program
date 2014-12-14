@@ -8,7 +8,7 @@
 
 #include <Arduino.h>
 
-#define ZERO 670
+#define ZERO 556
 #define MINUS_90 (ZERO + 128) // 450/3600 * 1023 = 127.875
 
 class TenTurnPot {

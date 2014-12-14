@@ -12,6 +12,7 @@
  
  */
 
+#include <Wire.h>
 #include <SwerveDrive.h>
 #include <Turret.h>
 #include <Constants.h>
@@ -36,29 +37,54 @@ double robotY = 0;
 void setup() {
 	Serial.begin(9600);
 	lcd.begin(16, 2);
+
+	lcd.clear();
+	lcd.print("Setup!");
 	turret.init();
 	// fan.init();
 	// drive.init();
+	lcd.print("Initialized");
 	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
 	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
 	attachInterrupt(RL_ENC_PIN, updateEncoderRL, CHANGE);
 }
 
-boolean scanned = false;
+byte state = 0;
 void loop() {
-// 	if(!scanned && turret.scan()) {
-// 		scanned = true;
-// 	}
-// 	if(scanned) {
-// 		if(turret.setAngle(0)) {
-// 			while(1);
-// 		}
-// 	}
-	if(turret.processIRData()) {
-		Serial.print("\n\n");
-		while(1);
+	switch (state) {
+	    case 0:
+		    if(turret.scan()) {
+				for(int i = 0; i < ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT); i++) {
+					double turretX = turret.obstacleXVals[i];
+					double turretY = turret.obstacleYVals[i];
+					double realX = robotX + turretX;
+					double realY = robotY + turretY;
+					fieldMap.set(realX, realY, 1); // set the point as probably having an obstacle
+					// ... and then decrease the probability in each cell that the ultrasonic ping passed through
+					turret.obstacleXVals[i] = 0; // reset the values
+					turret.obstacleYVals[i] = 0;
+				}
+				fieldMap.printMap();
+		    	state = 1;
+		    }
+		    break;
+	    case 1:
+	    	delay(5000); // simulate motion
+	    	robotX += 6;
+	    	state = 0;
+	    	break;
 	}
+	lcd.clear();
+	lcd.print(turret.getAngle());
+	// switch (state) {
+	//     case 0:
+	//     	if(turret.setAngle(0)) state = 1;
+	//     	break;
+	//     case 1:
+	//     	if(turret.setAngle(180)) state = 0;
+	//     	break;
+	// }
 }
 
 boolean turretScanned = false;
@@ -74,13 +100,6 @@ void runStateMachine() {
 				turretScanned = true;
 			}
 			if(turretScanned) {
-				// Process obstacles
-				for(int i = 0; i < ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT); i++) {
-					Point obstacleLoc = *turret.obstacles[i];
-					fieldMap.set(robotX + obstacleLoc.x,
-								 robotY + obstacleLoc.y,
-								 true);
-				}
 				// Process IR data
 				if(turret.processIRData()) {
 					currentState = EXTINGUISHING;
@@ -91,11 +110,14 @@ void runStateMachine() {
 			break;
 		case MOVING:
 			// Move some set distance, then go on to SCANNING
-			if(drive.driveDistance(dist)) {
-				robotX += sin(drive.getAngle()) * dist;
-				robotY += cos(drive.getAngle()) * dist;
-				currentState = SCANNING;
-			}
+			// if(drive.driveDistance(dist)) {
+			// 	robotX += cos(drive.getAngle()) * dist;
+			// 	robotY += sin(drive.getAngle()) * dist;
+			// 	currentState = SCANNING;
+			// }
+			delay(5000); // simulate the robot actually driving
+			robotX += dist;
+			currentState = SCANNING;
 			break;
 		case EXTINGUISHING:
 			/*

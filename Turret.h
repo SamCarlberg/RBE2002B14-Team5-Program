@@ -16,7 +16,7 @@
 #include <Map.h>
 #include <Point.h>
 
-#define ANGLE_INCREMENT 5
+#define ANGLE_INCREMENT 15
 #define MAX_ANGLE 180
 #define MIN_ANGLE 0
 
@@ -44,7 +44,7 @@ public:
 	double getDistance();
 
 	// Gets the location of the closest obstacle relative to the robot.
-	Point getObstacleLocation();
+	void getObstacleLocation();
 
 	// Sets the angle of the turret to the given angle.
 	// Returns true once it reaches that angle.
@@ -57,8 +57,10 @@ public:
 	// Returns true once it completes
 	boolean processIRData();
 
+	void printObstacles();
 
-	Point* obstacles[((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT)];
+	double obstacleXVals[((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT)];
+	double obstacleYVals[((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT)];
 
 private:
 	TenTurnPot pot;
@@ -66,7 +68,7 @@ private:
 	double angle;
 	double distance;
 	Ultrasonic rangeSensor;
-	byte irData[IR_DATA_ROWS][IR_DATA_COLS];
+	int irData[IR_DATA_ROWS][IR_DATA_COLS];
 };
 
 #endif

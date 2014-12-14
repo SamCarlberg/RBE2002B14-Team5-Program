@@ -44,6 +44,7 @@ const int TURRET_MOTOR_PIN			= 10; // Change this to match the physical robot
 const int TURRET_POT_PIN 			= A0; // analog
 const int ULTRASONIC_TRIGGER_PIN	= 22;
 const int ULTRASONIC_ECHO_PIN		= 24;
+const int BOOM_LENGTH 				= 7; // inches
 
 /*
  * Fan constant(s)
@@ -51,13 +52,13 @@ const int ULTRASONIC_ECHO_PIN		= 24;
 const int FAN_MOTOR_PIN = 9;//change this to match the physical robot
 
 /*
- *  Map constants. Tune these!
+ *  Map constants.
  */
 const static byte FIELD_WIDTH  = 96; // inches
 const static byte FIELD_HEIGHT = 96;
 
-const static byte MAP_WIDTH	 = 16; // cells are 6 inches on a side
-const static byte MAP_HEIGHT = 16;
+const static byte MAP_WIDTH	 = 32; // cells are 3 inches on a side
+const static byte MAP_HEIGHT = 32;
 
 /*
  *  Light sensor constants

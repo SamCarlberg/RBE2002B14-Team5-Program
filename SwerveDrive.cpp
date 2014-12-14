@@ -19,6 +19,12 @@
 #define flShift (45 + 90 * 3)
 #define KpStraight 2.5
 
+
+
+
+// Arcane. Used to bully the gyro into initializing
+void (* reset) (void) = 0;
+
 SwerveDrive::SwerveDrive():
 	frontRight(FR_MOTOR_PIN),
 	frontLeft(FL_MOTOR_PIN),
@@ -32,10 +38,14 @@ SwerveDrive::SwerveDrive():
 
 void SwerveDrive::init() {
 	Wire.begin();
+	Serial.println("Trying to initialize gyro");
 	if(!gyro.init()) {
-		Serial.println("Could not initialize gyro!");
+		Serial.print("Could not initialize gyro! Resetting robot...\n\n\n");
+		delay(1000);
+		reset();
 		while(1);
 	}
+	Serial.println("Gyro initialized");
 	gyro.enableDefault();
 	xGyroFilter.clear();
 	swerveMotor.attach(CENTER, 1000, 2000);

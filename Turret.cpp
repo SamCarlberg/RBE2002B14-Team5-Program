@@ -14,7 +14,7 @@ int curAngle = MIN_ANGLE;
 boolean resetting = false;
 
 // PID variables
-double Kp = 2, Ki = 0.1, Kd = 0.000;
+double Kp = 4.6, Ki = 0.022, Kd = 0.008;
 double accError = 0;
 double lastError = 0;
 
@@ -24,37 +24,35 @@ Turret::Turret():
 }
 
 void Turret::init() {
-	motor.attach(TURRET_MOTOR_PIN, 1000, 2000);
-	Serial.println(IR_DATA_ROWS);
-	Serial.println(IR_DATA_COLS);
+	// motor.attach(TURRET_MOTOR_PIN, 1000, 2000);
+	motor.attach(TURRET_MOTOR_PIN);
 }
 
 double Turret::getAngle() {
 	// return pot.getAngle();
-	return mapDouble(analogRead(TURRET_POT_PIN), 105, 861, 0, 180);
+	return mapDouble(analogRead(TURRET_POT_PIN), 116, 864, 0, 180);
 }
 
 double Turret::getDistance() {
 	return rangeSensor.getRangeInches();
 }
 
-Point Turret::getObstacleLocation() {
-	double dist = getDistance();
+void Turret::getObstacleLocation() {
+	double dist = getDistance() + BOOM_LENGTH;
 	double angle = getAngle();
 	double x = dist * cos(toRad(angle));
 	double y = dist * sin(toRad(angle));
-	Serial.print("("); Serial.print(angle); Serial.print(", "); Serial.print(dist); Serial.print(")\t->\t");
-	Serial.print("("); Serial.print(x); Serial.print(", "); Serial.print(y); Serial.print(")\n");
-	Point p(x, y);
-	obstacles[curAngle * ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT)] = &p;
-	return p;
+	obstacleXVals[curAngle / ANGLE_INCREMENT - 1] = x;
+	obstacleYVals[curAngle / ANGLE_INCREMENT - 1] = y;
 }
+
 boolean Turret::setAngle(double angle) {
 	double error = angle - getAngle();
-	if(abs(error) <= 0.5) {
+	if(abs(error) <= 1) {
 		accError  = 0; // reset PID
 		lastError = 0; 
 		motor.write(90);
+		delay(100);
 		return true;
 	}
 	accError += error;
@@ -67,11 +65,26 @@ boolean Turret::setAngle(double angle) {
 }
 
 
+boolean hitMax = false;
 boolean Turret::scan() {
+	// if(!hitMax) {
+	// 	if((getAngle() / ANGLE_INCREMENT) - (int) getAngle() <= 0.5) {
+	// 		getObstacleLocation();
+	// 	}
+	// 	if(setAngle(MAX_ANGLE)) {
+	// 		hitMax = true;
+	// 	}
+	// }
+	// if(hitMax) {
+	// 	if(setAngle(MIN_ANGLE)) {
+	// 		hitMax = false;
+	// 		return true;
+	// 	}
+	// }
 	if(resetting) {
 		curAngle = MIN_ANGLE;
 		resetting = !setAngle(curAngle); // if we're not there, then we're still resettting
-		return resetting;
+		return !resetting;
 	}
 	if(setAngle(curAngle)) {
 		if(abs(curAngle - MAX_ANGLE) <= 0.5) {
@@ -104,4 +117,15 @@ boolean Turret::processIRData() {
 		}
 	}
 	return foundFlame;
+}
+
+void Turret::printObstacles() {
+	for (int i = 0; i < ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT); ++i) {
+		Serial.print("(");
+		Serial.print(obstacleXVals[i]);
+		Serial.print(", ");
+		Serial.print(obstacleYVals[i]);
+		Serial.print(")  ");
+	}
+	Serial.print('\n');
 }
