@@ -40,7 +40,7 @@ const double DEGREES_PER_ENC_TICK = 2.0; // 180 ticks per rev (counting rising a
 /*
  *  Turret constants.
  */
-const int TURRET_MOTOR_PIN			= 10; // Change this to match the physical robot
+const int TURRET_MOTOR_PIN			= 9; // Change this to match the physical robot
 const int TURRET_POT_PIN 			= A0; // analog
 const int ULTRASONIC_TRIGGER_PIN	= 22;
 const int ULTRASONIC_ECHO_PIN		= 24;
@@ -50,7 +50,7 @@ const int IR_SERVO_PIN 				= 11;
 /*
  * Fan constant(s)
  */
-const int FAN_MOTOR_PIN = 9;//change this to match the physical robot
+const int FAN_MOTOR_PIN = 10;//change this to match the physical robot
 
 /*
  *  Map constants.
