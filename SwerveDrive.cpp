@@ -7,8 +7,8 @@
 
 // Constants for gyro filtering and adjustment
 #define GYRO_POLL_PERIOD 20
-#define GYRO_POS_OFFSET 142
-#define GYRO_NEG_OFFSET 143
+#define GYRO_POS_OFFSET 95
+#define GYRO_NEG_OFFSET 92
 #define NUM_FILTER_SAMPLES (10)
 #define kGyro (75.0/8500.0)
 
@@ -19,11 +19,8 @@
 #define flShift (45 + 90 * 3)
 #define KpStraight 2.5
 
-
-
-
-// Arcane. Used to bully the gyro into initializing
-void (* reset) (void) = 0;
+// Arcane. Resets the Arduino. Used to bully the gyro into initializing
+void (*reset)() = 0;
 
 SwerveDrive::SwerveDrive():
 	frontRight(FR_MOTOR_PIN),
@@ -38,7 +35,6 @@ SwerveDrive::SwerveDrive():
 
 void SwerveDrive::init() {
 	Wire.begin();
-	Serial.println("Trying to initialize gyro");
 	if(!gyro.init()) {
 		Serial.print("Could not initialize gyro! Resetting robot...\n\n\n");
 		delay(1000);
@@ -58,8 +54,7 @@ void SwerveDrive::init() {
 int turningPower = 0;
 
 boolean SwerveDrive::rotatePods(int angle, int tolerance) {
-	int error = angle - getAngle();
-	Serial.println("Error = " + String(error));
+	int error = getAngle() - angle;
 	if(abs(error) <= tolerance) {
 		swerveMotor.write(90);
 		drive(90);
@@ -77,7 +72,7 @@ int SwerveDrive::getAngle() {
 }
 
 void SwerveDrive::drive(double power) {
-	frontRight.drive(power);
+	frontRight.drive(180 - power); // inverted
 	frontLeft.drive(power);
 	rearRight.drive(power);
 	rearLeft.drive(power);
@@ -96,7 +91,7 @@ void SwerveDrive::driveRPM(double rpm) {
 // RL = 3
 // FL = 4
 void SwerveDrive::driveStraight(double power) {
-	double frPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + frShift));
+	double frPower = 180 - power + KpStraight * pollGyro() * sin(toRad(getAngle() + frShift)); // inverted
 	double flPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + flShift));
 	double rrPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + rrShift));
 	double rlPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + rlShift));
@@ -109,9 +104,17 @@ void SwerveDrive::driveStraight(double power) {
 
 double distanceTravelled = 0;
 double SwerveDrive::driveDistance(double distInches) {
-	//Serial.println("Drove: " + String(distanceTravelled));
+	double avgDistance = (frontLeft.getDistance() + 
+						  frontRight.getDistance() +
+						  rearLeft.getDistance() +
+						  rearRight.getDistance())
+						 / 4.0;
+
+	distanceTravelled = avgDistance;
 	if(distanceTravelled >= distInches) { // have we driven that far?
 		drive(90); // stop the motors
+
+		// reset encoders
 		frontLeft.encoder.reset();
 		frontRight.encoder.reset();
 		rearLeft.encoder.reset();
@@ -120,9 +123,7 @@ double SwerveDrive::driveDistance(double distInches) {
 		distanceTravelled = 0; // reset distanceTravelled
 		return dist;
 	}
-	double avgDistance = (frontLeft.getDistance() + frontRight.getDistance() + rearLeft.getDistance() + rearRight.getDistance()) / 4.0;
-	distanceTravelled = avgDistance;
-	driveStraight(60);
+	driveStraight(120);
 	return distanceTravelled;
 }
 
@@ -142,6 +143,7 @@ double SwerveDrive::pollGyro() {
 		xGyroFilter.add(offsetReading);
 
 		gyroAngle += kGyro * ((xGyroFilter.getAverage() * GYRO_POLL_PERIOD)/ 1000.0);
+		// Serial.println(gyroAngle);
 		lastMillis = curTime;
 	}
 	return gyroAngle;

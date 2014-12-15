@@ -19,11 +19,10 @@ class Map {
 		// Sets the given location as having an obstacle
 		boolean set(double x, double y, boolean);
 
-		// Returns true if no obstacle has been sensed at the given location
-		boolean isOpen(double x, double y);
+		// Is there an obstacle at (x,y)?
+		boolean get(double x, double y);
 
-		Point toCell(double x, double y);
-
+		// Prints the whole map to serial
 		void printMap();
 
 	private:

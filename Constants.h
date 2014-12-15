@@ -16,11 +16,11 @@
  *  Swerve drive constants. Change these!
  */
 enum SwerveServoPins {
-	CENTER 	= 4,	// motor that turns the pods
+	CENTER 				= 6,	// motor that turns the pods
 	FR_MOTOR_PIN 		= 5,
 	FL_MOTOR_PIN 		= 8,
 	RL_MOTOR_PIN 		= 7,
-	RR_MOTOR_PIN 		= 6
+	RR_MOTOR_PIN 		= 4
 };
 
 enum SwerveEncoderPins {
@@ -45,6 +45,7 @@ const int TURRET_POT_PIN 			= A0; // analog
 const int ULTRASONIC_TRIGGER_PIN	= 22;
 const int ULTRASONIC_ECHO_PIN		= 24;
 const int BOOM_LENGTH 				= 7; // inches
+const int IR_SERVO_PIN 				= 11;
 
 /*
  * Fan constant(s)
@@ -54,10 +55,11 @@ const int FAN_MOTOR_PIN = 9;//change this to match the physical robot
 /*
  *  Map constants.
  */
-const static byte FIELD_WIDTH  = 96; // inches
-const static byte FIELD_HEIGHT = 96;
+const static int FIELD_WIDTH  = 96 * 4; // x4 because we keep a 2D array that's 2x width and 2x height
+const static int FIELD_HEIGHT = 96 * 4;
 
-const static byte MAP_WIDTH	 = FIELD_WIDTH / 3; // cells are 3 inches on a side
+// one bit per cell -> divide by 8
+const static byte MAP_WIDTH	 = FIELD_WIDTH / (3 * 8); // cells are 3 inches on a side
 const static byte MAP_HEIGHT = FIELD_HEIGHT / 3;
 
 /*
@@ -80,6 +82,7 @@ const static int LS_BLACK_VALUE = 700; // a light sensor reading less than this 
 enum State {
 	START,
 	SCANNING,
+	TURNING,
 	MOVING,
 	CALCULATING,
 	EXTINGUISHING,

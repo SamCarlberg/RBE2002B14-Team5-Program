@@ -8,8 +8,8 @@
 
 #include <Arduino.h>
 
-#define ZERO 556
-#define MINUS_90 (ZERO + 128) // 450/3600 * 1023 = 127.875
+#define ZERO 420
+#define MINUS_90 537
 
 class TenTurnPot {
 public:
@@ -22,7 +22,7 @@ public:
 
 	// Gets the angle of the pot in degrees. 
 	double getAngle() {
-		return map(analogRead(pin), MINUS_90, ZERO, -90, 0);
+		return map(analogRead(pin), minus90, zero, -90, 0);
 	}
 
 private:

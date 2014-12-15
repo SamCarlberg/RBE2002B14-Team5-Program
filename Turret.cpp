@@ -48,7 +48,7 @@ void Turret::getObstacleLocation() {
 
 boolean Turret::setAngle(double angle) {
 	double error = angle - getAngle();
-	if(abs(error) <= 1) {
+	if(abs(error) <= 1 || angle <= MIN_ANGLE || angle >= MAX_ANGLE) {
 		accError  = 0; // reset PID
 		lastError = 0; 
 		motor.write(90);
@@ -67,20 +67,6 @@ boolean Turret::setAngle(double angle) {
 
 boolean hitMax = false;
 boolean Turret::scan() {
-	// if(!hitMax) {
-	// 	if((getAngle() / ANGLE_INCREMENT) - (int) getAngle() <= 0.5) {
-	// 		getObstacleLocation();
-	// 	}
-	// 	if(setAngle(MAX_ANGLE)) {
-	// 		hitMax = true;
-	// 	}
-	// }
-	// if(hitMax) {
-	// 	if(setAngle(MIN_ANGLE)) {
-	// 		hitMax = false;
-	// 		return true;
-	// 	}
-	// }
 	if(resetting) {
 		curAngle = MIN_ANGLE;
 		resetting = !setAngle(curAngle); // if we're not there, then we're still resettting
