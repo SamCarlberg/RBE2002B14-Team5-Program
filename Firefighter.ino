@@ -57,8 +57,21 @@ void setup() {
 }
 
 void loop() {
-	runStateMachine();
+	// runStateMachine();
 	// drive.pollGyro();
+
+	turret.scan();
+
+	// int input = analogRead(2);
+	// input = map(input, 200, 800, 0, 360);
+	// turret.setTurretAngle(input);
+	// Serial.println(input);
+
+	// int input = analogRead(2);
+	// input = map(input, 200, 800, 0, 180);
+	// input = constrain(input, 0, 180);
+	// turret.setServoAngle(input);
+	// Serial.println(input);
 }
 
 
@@ -136,7 +149,7 @@ void runStateMachine() {
 
 // Adds obstacles to the map
 void processObstacles() {
-	for(int i = 0; i < ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT); i++) {
+	for(int i = 0; i < ((TURRET_MAX_ANGLE - TURRET_MIN_ANGLE) / TURRET_ANGLE_INCREMENT); i++) {
 		double turretX = turret.obstacleXVals[i];
 		double turretY = turret.obstacleYVals[i];
 		double realX = robotX + turretX;
