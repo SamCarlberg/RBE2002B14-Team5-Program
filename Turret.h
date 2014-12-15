@@ -16,12 +16,18 @@
 #include <Map.h>
 #include <Point.h>
 
+<<<<<<< HEAD
 #define TURRET_ANGLE_INCREMENT 10
 #define TURRET_MAX_ANGLE 180
 #define TURRET_MIN_ANGLE 0
 #define TURRET_MIN_LIMIT -45
 #define TURRET_MAX_LIMIT 405
 #define TURRET_POWERLIMIT 60 //constrains to 30 - 150
+=======
+#define ANGLE_INCREMENT 15
+#define MAX_ANGLE 375
+#define MIN_ANGLE -15
+>>>>>>> FETCH_HEAD
 
 #define SERVO_ANGLE_INCREMENT 5
 #define SERVO_MAX_ANGLE 45

@@ -3,7 +3,7 @@
 #include <RunningMedian.h>
 
 #define INCHES_PER_MICROSECOND (0.01351) // speed of sound at STP
-#define NUM_SAMPLES 11
+#define NUM_SAMPLES 3
 
 Ultrasonic::Ultrasonic(int _trigger, int _echo): trigger(_trigger), echo(_echo) {
 	pinMode(trigger, OUTPUT);
