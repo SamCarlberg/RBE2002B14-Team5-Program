@@ -77,8 +77,8 @@ void testMapping() {
 		scanned = true;
 	}
 	if(scanned) {
-		if(turret.setAngle(0)) {
-			for(int i = 0; i < ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT); i++) {
+		if(turret.setTurretAngle(0)) {
+			for(int i = 0; i < ((TURRET_MAX_ANGLE - TURRET_MIN_ANGLE) / TURRET_ANGLE_INCREMENT); i++) {
 				double x = turret.obstacleXVals[i];
 				double y = turret.obstacleYVals[i];
 				double realX = robotX + x;

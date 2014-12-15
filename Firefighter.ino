@@ -36,7 +36,7 @@ double robotX = 0;
 double robotY = 0;
 
 void setup() {
-	Serial.begin(115200);
+	Serial.begin(9600);
 	lcd.begin(16, 2);
 
 	lcd.clear();
@@ -58,10 +58,20 @@ void setup() {
 
 void loop() {
 	// runStateMachine();
-	lcd.clear();
-	lcd.print(analogRead(TURRET_POT_PIN));
-	lcd.setCursor(0, 1);
-	lcd.print(turret.getAngle());
+	// drive.pollGyro();
+
+	turret.scan();
+
+	// int input = analogRead(2);
+	// input = map(input, 200, 800, 0, 360);
+	// turret.setTurretAngle(input);
+	// Serial.println(input);
+
+	// int input = analogRead(2);
+	// input = map(input, 200, 800, 0, 180);
+	// input = constrain(input, 0, 180);
+	// turret.setServoAngle(input);
+	// Serial.println(input);
 }
 
 
@@ -107,7 +117,7 @@ void runStateMachine() {
 			lcd.print(nextPoint.x);
 			lcd.setCursor(0, 7);
 			lcd.print(nextPoint.y);
-
+			
 			moveToPoint(nextPoint.x, nextPoint.y);
 
 			break;
@@ -139,7 +149,7 @@ void runStateMachine() {
 
 // Adds obstacles to the map
 void processObstacles() {
-	for(int i = 0; i < ((MAX_ANGLE - MIN_ANGLE) / ANGLE_INCREMENT); i++) {
+	for(int i = 0; i < ((TURRET_MAX_ANGLE - TURRET_MIN_ANGLE) / TURRET_ANGLE_INCREMENT); i++) {
 		double turretX = turret.obstacleXVals[i];
 		double turretY = turret.obstacleYVals[i];
 		double realX = robotX + turretX;
@@ -154,31 +164,10 @@ void processObstacles() {
 Point getTarget() {
 	double x = robotX, y = robotY; // target point
 
-	int range = 18;
-
-	for(int i = robotX - range; i < robotX + range; i += 3) {
-		for(int j = robotY - range; j < robotY + range; j += 3) {
-
-		}
-	}
-
+	// TODO
 
 	Point p(x, y);
 	return p;
-}
-
-boolean obstacleOnPath(double angle, double* distance) {
-	double cosine = cos(toRad(angle));
-	double sine = sin(toRad(angle));
-	for(int dist = 9; dist <= 36; dist += 3) {
-		double x = dist * cosine;
-		double y = dist * sine;
-		if(fieldMap.get(robotX + x, robotY + y)) {
-			*distance = dist;
-			return true;
-		}
-	}
-	return false;	
 }
 
 

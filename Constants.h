@@ -46,6 +46,7 @@ const int ULTRASONIC_TRIGGER_PIN	= 22;
 const int ULTRASONIC_ECHO_PIN		= 24;
 const int BOOM_LENGTH 				= 7; // inches
 const int IR_SERVO_PIN 				= 11;
+const int IR_SENSOR_PIN				= A1; //analog
 
 /*
  * Fan constant(s)
