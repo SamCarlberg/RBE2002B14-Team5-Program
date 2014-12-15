@@ -173,68 +173,19 @@ Point getTarget() {
 		}
 	}
 
-	if(t1 != 90) { // avoid another loop if we've already covered that area
-		// Go 90->360->270
-		for(; t2 < 270; t2 = (t2 - angleInc) % 360) {
-			if(obstacleOnPath(&x2, &y2, t2)) {
-				lastAngle = t2;
-			} else if(t2 - angleInc == lastAngle) {
-				t2 = lastAngle;
-				break;
-			}
-		}
-	}
-	// Go 270->180->90
-	for(; t3 < 90; t3 -= angleInc) {
-		if(obstacleOnPath(&x3, &y3, t3)) {
-			lastAngle = t3;
-		} else if(t3 - angleInc == lastAngle) {
-			t3 = lastAngle;
-			break;
-		}
-	}
-
-	if(t3 != 90) { // avoid another loop if we've already covered that area
-		// Go 90->180->270
-		for(; t4 < 270; t4 += angleInc) {
-			if(obstacleOnPath(&x4, &y4, t4)) {
-				lastAngle = t4;
-			} else if(t4 - angleInc == lastAngle) {
-				t4 = lastAngle;
-				break;
-			}
-		}
-	}
-
-	double minimumAngle = min(min(t1, t2), min(t3, t4));
-	double distance = 0;
-	if(minimumAngle == t1) {
-		x = robotX + x1;
-		y = robotY + y1;
-	} else if(minimumAngle == t2) {
-		x = robotX + x2;
-		y = robotY + y2;
-	} else if(minimumAngle == t3) {
-		x = robotX + x3;
-		y = robotY + y3;
-	} else { // minAngle == t4
-		x = robotX + x4;
-		y = robotY + y4;
-	}
 
 	Point p(x, y);
 	return p;
 }
 
-boolean obstacleOnPath(double* x, double* y, double angle) {
+boolean obstacleOnPath(double angle, double* distance) {
 	double cosine = cos(toRad(angle));
 	double sine = sin(toRad(angle));
 	for(int dist = 9; dist <= 36; dist += 3) {
-		double x1 = dist * cosine;
-		double y1 = dist * sine;
-		if(fieldMap.get(robotX + x1, robotY + y1)) {
-			*x = x1;
-			*y = y1;
+		double x = dist * cosine;
+		double y = dist * sine;
+		if(fieldMap.get(robotX + x, robotY + y)) {
+			*distance = dist;
 			return true;
 		}
 	}

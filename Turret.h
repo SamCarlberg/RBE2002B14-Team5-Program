@@ -17,8 +17,8 @@
 #include <Point.h>
 
 #define ANGLE_INCREMENT 15
-#define MAX_ANGLE 180
-#define MIN_ANGLE 0
+#define MAX_ANGLE 375
+#define MIN_ANGLE -15
 
 #define SERVO_ANGLE_INCREMENT 5
 #define SERVO_MAX_ANGLE 180
