@@ -17,7 +17,7 @@ double Ultrasonic::getRangeInches() {
 		poll();
 		median.add(distance);
 	}
-	return median.getAverage();
+	return median.getAverage(); // can change to median if outliers happen often enough
 }
 
 void Ultrasonic::poll() {

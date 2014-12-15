@@ -36,7 +36,7 @@ double robotX = 0;
 double robotY = 0;
 
 void setup() {
-	Serial.begin(9600);
+	Serial.begin(115200);
 	lcd.begin(16, 2);
 
 	lcd.clear();
@@ -57,8 +57,11 @@ void setup() {
 }
 
 void loop() {
-	runStateMachine();
-	// drive.pollGyro();
+	// runStateMachine();
+	lcd.clear();
+	lcd.print(analogRead(TURRET_POT_PIN));
+	lcd.setCursor(0, 1);
+	lcd.print(turret.getAngle());
 }
 
 
@@ -104,7 +107,7 @@ void runStateMachine() {
 			lcd.print(nextPoint.x);
 			lcd.setCursor(0, 7);
 			lcd.print(nextPoint.y);
-			
+
 			moveToPoint(nextPoint.x, nextPoint.y);
 
 			break;
@@ -150,26 +153,12 @@ void processObstacles() {
 // Gets the next target point to drive to
 Point getTarget() {
 	double x = robotX, y = robotY; // target point
-	// t1 sweeps CCW, t2 sweeps CW
-	// t3 sweeps CW, t4 sweeps CCW
-	int t1 = 270, t2 = 90; // front angles 
-	int t3 = 270, t4 = 90; // rear angles
-	int angleInc = 15;
 
-	int lastAngle = 0;
+	int range = 18;
 
-	double x1 = 0, y1 = 0;
-	double x2 = 0, y2 = 0;
-	double x3 = 0, y3 = 0;
-	double x4 = 0, y4 = 0;
+	for(int i = robotX - range; i < robotX + range; i += 3) {
+		for(int j = robotY - range; j < robotY + range; j += 3) {
 
-	// Go 270->360->90
-	for(; t1 != 90; t1 = (t1 + angleInc) % 360) {
-		if(obstacleOnPath(&x1, &y1, t1)) {
-			lastAngle = t1;
-		} else if(t1 - angleInc == lastAngle) {
-			t1 = lastAngle;
-			break;
 		}
 	}
 
