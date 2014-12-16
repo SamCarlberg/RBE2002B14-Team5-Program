@@ -36,9 +36,10 @@ SwerveDrive::SwerveDrive():
 void SwerveDrive::init() {
 	Wire.begin();
 	if(!gyro.init()) {
-		Serial.print("Could not initialize gyro! Resetting robot...\n\n\n");
+		// Serial.print("Could not initialize gyro! Resetting robot...\n\n\n");
+		// reset();
+		Serial.print("Could not initialize gyro!\n\n\n");
 		delay(1000);
-		reset();
 		while(1);
 	}
 	Serial.println("Gyro initialized");
