@@ -79,30 +79,30 @@ void Turret::setServoAngle(double angle){
 }
 
 
-// boolean hitMax = false;
-// boolean Turret::scan() {
-// 	if(resetting) {
-// 		curAngle = MIN_ANGLE;
-// 		resetting = !setTurretAngle(curAngle); // if we're not there, then we're still resettting
-// 		return !resetting;
-// 	}
-// 	if(setTurretAngle(curAngle)) {
-// 		if(abs(curAngle - MAX_ANGLE) <= 0.5) {
-// 			getObstacleLocation();
-// 			Serial.println("Finished scan!");
-// 			resetting = true;
-// 		} else {
-// 			curAngle += ANGLE_INCREMENT;
-// 			getObstacleLocation();
-// 			setTurretAngle(curAngle);
-// 		}
-// 	}
-// 	return false;
-// }
-
-boolean Turret::scan(){
-	scan(0, 360);
+boolean hitMax = false;
+boolean Turret::scan() {
+	if(resetting) {
+		curAngle = TURRET_MIN_ANGLE;
+		resetting = !setTurretAngle(curAngle); // if we're not there, then we're still resettting
+		return !resetting;
+	}
+	if(setTurretAngle(curAngle)) {
+		if(abs(curAngle - TURRET_MAX_ANGLE) <= 0.5) {
+			getObstacleLocation();
+			Serial.println("Finished scan!");
+			resetting = true;
+		} else {
+			curAngle += TURRET_ANGLE_INCREMENT;
+			getObstacleLocation();
+			setTurretAngle(curAngle);
+		}
+	}
+	return false;
 }
+
+// boolean Turret::scan(){
+// 	scan(0, 360);
+// }
 
 boolean Turret::scan(double inputMinTurretAngle, double inputMaxTurretAngle) {
 	int tempValue = -1;

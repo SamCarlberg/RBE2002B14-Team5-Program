@@ -3,8 +3,8 @@
 #include <RunningMedian.h>
 
 #define INCHES_PER_MICROSECOND (0.01351) // speed of sound at STP
-#define NUM_SAMPLES 3
-#define MAX_DISTANCE 96 // inches
+#define NUM_SAMPLES 7
+#define MAX_DISTANCE 128 // inches
 #define MAX_DELAY (MAX_DISTANCE / INCHES_PER_MICROSECOND)
 
 Ultrasonic::Ultrasonic(int _trigger, int _echo): trigger(_trigger), echo(_echo) {
@@ -20,6 +20,7 @@ double Ultrasonic::getRangeInches() {
 		median.add(distance);
 	}
 	return median.getAverage(); // can change to median if outliers happen often enough
+	return distance;
 }
 
 void Ultrasonic::poll() {
@@ -28,7 +29,7 @@ void Ultrasonic::poll() {
 	digitalWrite(trigger, HIGH);
 	delayMicroseconds(10);
 	digitalWrite(trigger, LOW);
-	long duration = pulseIn(echo, HIGH, MAX_DELAY); // returns micros
+	long duration = pulseIn(echo, HIGH); // returns micros
 	delay(20);
 
 	distance = duration * INCHES_PER_MICROSECOND / 2;

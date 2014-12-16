@@ -57,32 +57,70 @@ void setup() {
 	testMapSet();
 }
 
+int numScans = 0;
+int state = 0;
 void loop() {
 	// runStateMachine();
-	if(turret.scan(0, 360)){
-		lcd.print(turret.scan_XBar);
-		lcd.setCursor(0, 1);
-		lcd.print(turret.scan_YBar);
+	// if(turret.scan(0, 360)){
+	// 	lcd.print(turret.scan_XBar);
+	// 	lcd.setCursor(0, 1);
+	// 	lcd.print(turret.scan_YBar);
 
-		shouldKillFire = true;
-		turret.setServoAngle(-75);
+	// 	shouldKillFire = true;
+	// 	turret.setServoAngle(-75);
 
-		while(!fan.isAtMaxSpeed()){
-			fan.speedUp();
-		}
-		delay(300);
-		while(!fan.isStopped()){
-		    fan.slowDown();
-		}
+		// while(!fan.isAtMaxSpeed()){
+		// 	fan.speedUp();
+		// }
+		// delay(1000);
+		// while(!fan.isStopped()){
+		//     fan.slowDown();
+		// }
+		// delay(1000);
 
-		while(1){
+	// 	while(1){
 			
-		}
+	// 	}
 
 	// 	// fan.speedUp();
 	// 	// delay(10000);
 	// 	// fan.slowDown();
 
+	// }
+	switch (state) {
+	    case 0:
+			processObstacles();
+			if(turret.scan()) {
+				numScans++;
+				if(numScans == 5) {
+					fieldMap.printMap();
+					fieldMap.filter();
+					fieldMap.printMap();
+					numScans = 0;
+					state++;
+				}
+			}
+		    break;
+	    case 1:
+	    	delay(5000);
+	    	robotY -= 24;
+	    	state++;
+	    	break;
+	    case 2:
+			processObstacles();
+			if(turret.scan()) {
+				numScans++;
+				if(numScans == 5) {
+					fieldMap.printMap();
+					fieldMap.filter();
+					fieldMap.printMap();
+					numScans = 0;
+					state++;
+				}
+			}
+		    break;
+	    default:
+	    	break;
 	}
 
 	// turret.setTurretAngle(252);
@@ -195,16 +233,6 @@ void processObstacles() {
 		turret.obstacleXVals[i] = 0; // reset the arrays
 		turret.obstacleYVals[i] = 0;
 	}
-
-
-
-	/*
-
-
-		
-		
-
-	*/
 }
 
 // Gets the next target point to drive to
