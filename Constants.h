@@ -48,6 +48,8 @@ const int BOOM_LENGTH 				= 7; // inches
 const int IR_SERVO_PIN 				= 11;
 const int IR_SENSOR_PIN				= A2; //analog
 
+const int START_BUTTON_PIN			= 12;//digital
+
 /*
  * Fan constant(s)
  */
