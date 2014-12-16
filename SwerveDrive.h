@@ -29,7 +29,7 @@ public:
 	// Rotates the pods to a certain angle relative to the drive base
 	// Returns true if the pods have rotated all the way, otherwise returns false
 	// Tolerance is in degrees and defaults to 5
-	boolean rotatePods(int angle, int tolerance = 5);
+	boolean rotatePods(double angle, double tolerance = 2);
 
 	// Gets the current angle of the pods relative to the drive base
 	int getAngle();

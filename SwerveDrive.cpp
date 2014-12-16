@@ -17,7 +17,7 @@
 #define rrShift (45 + 90 * 1)
 #define rlShift (45 + 90 * 2)
 #define flShift (45 + 90 * 3)
-#define KpStraight 2.5
+#define KpStraight (-10.0)
 
 // Arcane. Resets the Arduino. Used to bully the gyro into initializing
 void (*reset)() = 0;
@@ -53,11 +53,15 @@ void SwerveDrive::init() {
 
 int turningPower = 0;
 
-boolean SwerveDrive::rotatePods(int angle, int tolerance) {
-	int error = getAngle() - angle;
+boolean SwerveDrive::rotatePods(double angle, double tolerance) {
+	double error = getAngle() - angle;
 	if(abs(error) <= tolerance) {
 		swerveMotor.write(90);
 		drive(90);
+		frontLeft.encoder.reset();
+		frontRight.encoder.reset();
+		rearLeft.encoder.reset();
+		rearRight.encoder.reset();
 		return true;
 	}
 	double power = constrain(error*5.0 + 90, 0, 180);
@@ -72,10 +76,11 @@ int SwerveDrive::getAngle() {
 }
 
 void SwerveDrive::drive(double power) {
-	frontRight.drive(180 - power); // inverted
+	frontRight.drive(power);
 	frontLeft.drive(power);
 	rearRight.drive(power);
 	rearLeft.drive(power);
+
 }
 
 void SwerveDrive::driveRPM(double rpm) {
@@ -91,9 +96,9 @@ void SwerveDrive::driveRPM(double rpm) {
 // RL = 3
 // FL = 4
 void SwerveDrive::driveStraight(double power) {
-	double frPower = 180 - power + KpStraight * pollGyro() * sin(toRad(getAngle() + frShift)); // inverted
+	double frPower = 180 - (power + KpStraight * pollGyro() * sin(toRad(getAngle() + frShift))); // inverted
 	double flPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + flShift));
-	double rrPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + rrShift));
+	double rrPower = 180 - (power + KpStraight * pollGyro() * sin(toRad(getAngle() + rrShift)));
 	double rlPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + rlShift));
 
 	frontRight.drive(constrain(frPower, 0, 180));
@@ -123,7 +128,7 @@ double SwerveDrive::driveDistance(double distInches) {
 		distanceTravelled = 0; // reset distanceTravelled
 		return dist;
 	}
-	driveStraight(120);
+	driveStraight(135);
 	return distanceTravelled;
 }
 
@@ -148,3 +153,12 @@ double SwerveDrive::pollGyro() {
 	}
 	return gyroAngle;
 }
+
+
+
+
+
+
+
+
+

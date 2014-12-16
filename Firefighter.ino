@@ -32,6 +32,9 @@ Fan fan;
 
 byte currentState = START;
 
+int state = 0;
+double currentDist = 12;
+
 double robotX = 0;
 double robotY = 0;
 
@@ -54,39 +57,85 @@ void setup() {
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
 	attachInterrupt(RL_ENC_PIN, updateEncoderRL, CHANGE);
 
-	Serial.println(MAP_WIDTH * 8);
-	Serial.println(MAP_HEIGHT);
+	pinMode(START_BUTTON_PIN, INPUT_PULLUP);
+
+	// Serial.println(MAP_WIDTH * 8);
+	// Serial.println(MAP_HEIGHT);
 }
 
 void loop() {
+
+	// Serial.println(state);
+
+	switch (state) {
+		case 0:
+		  if(digitalRead(START_BUTTON_PIN) == 0){
+		  	state++;
+		  }
+		  break;
+	    case 1:
+	      if(drive.rotatePods(180)){
+	      	state++;
+	      }
+	      break;
+	    case 2:
+	      if(drive.driveDistance(currentDist) >= currentDist){
+	      	state++;
+	      }
+	      // drive.driveStraight(90);
+	      break;
+	    case 3:
+	      if(digitalRead(START_BUTTON_PIN) == 0){
+		  	state++;
+		  }
+	      break;
+	    case 4:
+	      if(drive.rotatePods(0)){
+	      	state++;
+	      }
+	      break;
+	    case 5:
+	      if(drive.driveDistance(currentDist) >= currentDist){
+	      	state = 0;
+	      	currentDist += 12;
+	      }
+	      break;
+
+	    default:
+	      state = 0;
+	      break;
+	}
+
+
 	// runStateMachine();
-	// drive.pollGyro();
+	// double temp = drive.pollGyro();
+	// Serial.println(temp);
 
-	if(turret.scan(0, 360)){
-		lcd.print(turret.scan_XBar);
-		lcd.setCursor(0, 1);
-		lcd.print(turret.scan_YBar);
+	// if(turret.scan(0, 360)){
+	// 	lcd.print(turret.scan_XBar);
+	// 	lcd.setCursor(0, 1);
+	// 	lcd.print(turret.scan_YBar);
 
-		shouldKillFire = true;
-		turret.setServoAngle(-75);
+	// 	shouldKillFire = true;
+	// 	turret.setServoAngle(-75);
 
-		while(!fan.isAtMaxSpeed()){
-			fan.speedUp();
-		}
-		delay(300);
-		while(!fan.isStopped()){
-		    fan.slowDown();
-		}
+	// 	while(!fan.isAtMaxSpeed()){
+	// 		fan.speedUp();
+	// 	}
+	// 	delay(300);
+	// 	while(!fan.isStopped()){
+	// 	    fan.slowDown();
+	// 	}
 
-		while(1){
+	// 	while(1){
 			
-		}
+	// 	}
 
 	// 	// fan.speedUp();
 	// 	// delay(10000);
 	// 	// fan.slowDown();
 
-	}
+	// }
 
 	// turret.setTurretAngle(252);
 	// turret.setServoAngle(-75);
@@ -112,6 +161,14 @@ void loop() {
 	// input = constrain(input, 0, 180);
 	// turret.setServoAngle(input);
 	// Serial.println(input);
+
+	// int input = analogRead(0);
+	// Serial.print(analogRead(SWERVE_POT_PIN));
+	// Serial.print(", ");
+	// input = constrain(map(input, 200, 800, 0, 360), 0, 360);
+	// drive.rotatePods(input);
+	// Serial.println(input);
+
 }
 
 
