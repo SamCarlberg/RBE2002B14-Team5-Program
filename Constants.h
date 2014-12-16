@@ -62,7 +62,7 @@ const static int FIELD_HEIGHT = 96 * 2;
 // one bit per cell -> divide by 8
 
 const static byte BITS_PER_CELL = 4;
-const static byte MAP_WIDTH	 = FIELD_WIDTH / (3 * BITS_PER_CELL); // cells are 3 inches on a side
+const static byte MAP_WIDTH	 = FIELD_WIDTH / (3 * 8 / BITS_PER_CELL); // cells are 3 inches on a side
 const static byte MAP_HEIGHT = FIELD_HEIGHT / 3;
 
 /*

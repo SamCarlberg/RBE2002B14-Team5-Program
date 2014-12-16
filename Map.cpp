@@ -19,8 +19,7 @@ boolean Map::set(double x, double y, boolean hasObstacle) {
 	y = constrain(y, -height / 2, height / 2 - 1);
 
 	byte cellX = (byte) (x / (cellSize * 8 / BITS_PER_CELL) + MAP_WIDTH / 2);
-	byte nibbleNum = cellX % (8 / BITS_PER_CELL);
-	cellX /= (8 / BITS_PER_CELL);
+	byte nibbleNum = (byte) (x / cellSize) % (8 / BITS_PER_CELL);
 
 	byte cellY = (byte) (y / (cellSize) + MAP_HEIGHT / 2);
 
@@ -32,9 +31,9 @@ boolean Map::set(double x, double y, boolean hasObstacle) {
 	map[cellX][cellY] |= hits << (nibbleNum * 4); // sets the nibble value to 'hits'
 
 
-	Serial.print("("); Serial.print(x); Serial.print(", "); Serial.print(y); Serial.print(") to cell: ");
-	Serial.print("["); Serial.print(cellX); Serial.print('-'); Serial.print(nibbleNum); Serial.print(", "); Serial.print(cellY); Serial.print("]");
-	Serial.print(" Hits = "); Serial.print(hits); Serial.print('\n');
+	// Serial.print("("); Serial.print(x); Serial.print(", "); Serial.print(y); Serial.print(") to cell: ");
+	// Serial.print("["); Serial.print(cellX); Serial.print('-'); Serial.print(nibbleNum); Serial.print(", "); Serial.print(cellY); Serial.print("]");
+	// Serial.print(" Hits = "); Serial.print(hits); Serial.print('\n');
 
 	return true;
 }
