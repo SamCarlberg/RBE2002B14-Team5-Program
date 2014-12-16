@@ -41,10 +41,12 @@ LinkedList<Point> *previousPoints = new LinkedList<Point>();
 
 byte currentState = START;
 
+Point robotLocation(0, 0);
 double robotX = 0;
 double robotY = 0;
 
 boolean shouldKillFire = false;
+
 
 void setup() {
 	Serial.begin(9600);
@@ -63,7 +65,7 @@ void setup() {
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
 	attachInterrupt(RL_ENC_PIN, updateEncoderRL, CHANGE);
 
-	testMapSet();
+	previousPoints->add(robotLocation);
 }
 
 int numScans = 0;
@@ -199,6 +201,12 @@ void runStateMachine() {
 			break;
 		}
 		case EXTINGUISHING: {
+			/*
+				
+				Display X Y Z coordinates of the flame on the LCD
+				ramp up the fan and run it for n millis
+
+			 */
 			break;
 		}
 		case RETURNING: {
