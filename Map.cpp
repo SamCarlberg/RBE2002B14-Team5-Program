@@ -12,6 +12,7 @@ Map::Map() {
     cellSize = 3;
 }
 
+
 boolean Map::set(double x, double y, boolean hasObstacle) {
     // Serial.println("Setting "); Serial.println(x); Serial.println(", "); Serial.println(y); Serial.println("\n");
     if (x < (-width / 2) || x > (width / 2)
@@ -28,13 +29,33 @@ boolean Map::set(double x, double y, boolean hasObstacle) {
     int cellY = (int) (y / (cellSize) + MAP_HEIGHT / 2);
 
     int hits = (map[cellX][cellY] >> (nibbleNum * 4)) & 15; // grab hits stored in nibble
-    if (hits < 15) {
+    if (hits < 14) {
         hits++;
     }
     map[cellX][cellY] &= 15 << ((1 - nibbleNum) * 4);  // clears the value in the nibble
     map[cellX][cellY] |= hits << (nibbleNum * 4); // sets the nibble value to 'hits'
     return true;
 }
+
+
+
+byte Map::get(double x, double y) {
+    if (x < (-width / 2) || x > (width / 2)
+            || y < (-height / 2) || y > (height / 2)) {
+        // Serial.println("Location out of bounds!");
+        return 255; // error
+    }
+    x = constrain(x, -width / 2, width / 2 - 1); // make sure we don't go out of bounds
+    y = constrain(y, -height / 2, height / 2 - 1);
+
+    int cellX = (int) (x / (cellSize * 8 / BITS_PER_CELL) + MAP_WIDTH / 2);
+    int nibbleNum = (int) (x / cellSize) % (8 / BITS_PER_CELL);
+
+    int cellY = (int) (y / (cellSize) + MAP_HEIGHT / 2);
+
+    return getValue(x, y, nibbleNum);
+}
+
 
 void Map::printMap() {
     Serial.println("Grid:");
@@ -54,6 +75,7 @@ void Map::printMap() {
     Serial.print('\n');
 }
 
+
 void Map::cleanUp() {
 	for(int x = 0; x < MAP_WIDTH; x++) {
 		for(int y = 0; y < MAP_HEIGHT; y++) {
@@ -62,7 +84,7 @@ void Map::cleanUp() {
 				if((sumVertical(x, y, nibble) + sumHorizontal(x, y, nibble) - getValue(x, y, nibble)) / 5.0 < RANDOM_NOISE_THRESHOLD) {
 					setValue(x, y, nibble, 0);
 				}
-				// find endpoints separated by one cell
+				// find endpoints separated by one cell and fill the gaps
 				if(getValue(x, y, nibble) == 15) {
 					if(getValue(x + 1, y, nibble) == 15) {
 						setValue(x, y, nibble, 14);

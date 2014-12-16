@@ -19,8 +19,8 @@ class Map {
 		// Sets the given location as having an obstacle
 		boolean set(double x, double y, boolean);
 
-		// Is there an obstacle at (x,y)?
-		boolean get(double x, double y);
+		// Gets the value at the given "real" coordinates that are passed
+		byte get(double, double);
 		
 		// Filters noise and finds endpoints
 		void filter();
@@ -30,6 +30,9 @@ class Map {
 
 		// Prints the whole map to serial
 		void printMap();
+
+		// Gets the value at the give (x, y, nibble)
+		byte getValue(byte, byte, byte);
 
 	private:
 		// Sums horizontal values adjacent to the given cell
@@ -55,9 +58,6 @@ class Map {
 		
 		// Checks if the cell at the given (x, y, nibble) is the start of a vertical run
 		boolean isStartVertical(byte, byte, byte);
-
-		// Gets the value at the give (x, y, nibble)
-		byte getValue(byte, byte, byte);
 
 		// Sets the value a tthe given (x, y, nibble)
 		void setValue(byte, byte, byte, byte);

@@ -29,12 +29,15 @@
 #include <RunningMedian.h>
 #include <Ultrasonic.h>
 #include <Line.h>
+#include <Point.h>
+#include <LinkedList.h>
 
 LiquidCrystal lcd(53, 51, 49, 47, 45, 43);
 SwerveDrive drive;
 Turret turret;
 Map fieldMap;
 Fan fan;
+LinkedList<Point> *previousPoints = new LinkedList<Point>();
 
 byte currentState = START;
 
@@ -233,17 +236,51 @@ void processObstacles() {
 	}
 }
 
+double distanceToPoint(double x, double y) {
+	return sqrt(square(robotX - x) + square(robotY - y));
+}
+
 // Gets the next target point to drive to
 Point getTarget() {
-	double x = robotX, y = robotY; // target point
-
-	// TODO
-	x += 6;
-	y += 6;
-
-	Point p(x, y);
-	return p;
+	Point nearestEndpoint(255, 255);
+	double nearestDist = distanceToPoint(255, 255);
+	for(int x = -FIELD_WIDTH / 2; x < FIELD_WIDTH / 2; x += 3) {
+		for(int y = -FIELD_HEIGHT / 2; y <= FIELD_HEIGHT / 2; y += 3) {
+			if(fieldMap.get(x, y) == 15) {
+				double distToPoint = distanceToPoint(x, y);
+				if(distToPoint < nearestDist && !visitedPoint(x, y)) {
+					nearestEndpoint.x = x;
+					nearestEndpoint.y = y;
+					nearestDist = distToPoint;
+				}
+			}
+		}
+	}
+	if(nearestEndpoint.x == 255 || nearestEndpoint.y == 255) {
+		nearestEndpoint.x = 0; // make sure we don't try to move outside the field
+		nearestEndpoint.y = 0;
+		return nearestEndpoint;
+	}
+	// To move to offset point closest to robot:
+	// setpoint is +x +y, offset point is -x -y
+	// setpoint is +x -y, offset point is -x +y
+	// setpoint is -x -y, offset point is +x +y
+	// setpoint is -x +y, offset point is +x -y
+	double distOffset = 6;
+	nearestEndpoint.x -= sign(nearestEndpoint.x - robotX) * distOffset;
+	nearestEndpoint.y -= sign(nearestEndpoint.y - robotY) * distOffset;
+	previousPoints->add(nearestEndpoint);
+	return nearestEndpoint;
 }
+
+boolean visitedPoint(double x, double y) {
+	for(int i = 0; i < previousPoints->size(); i++) {
+		if(previousPoints->get(i).x == x && previousPoints->get(i).y == y)
+			return true;
+	}
+	return false;
+}
+
 
 
 byte moveToPointState = 0;
