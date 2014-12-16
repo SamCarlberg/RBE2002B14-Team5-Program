@@ -12,6 +12,12 @@
  
  */
 
+
+// One robot to rule them all,
+//    One robot to find them
+// One robot to bind them here
+//    And of their sleep deprive them
+
 #include <Wire.h>
 #include <SwerveDrive.h>
 #include <Turret.h>
@@ -87,6 +93,9 @@ void loop() {
 	// 	// fan.slowDown();
 
 	// }
+	lcd.clear();
+	lcd.print(state);
+
 	switch (state) {
 	    case 0:
 			processObstacles();
@@ -94,31 +103,20 @@ void loop() {
 				numScans++;
 				if(numScans == 5) {
 					fieldMap.printMap();
-					fieldMap.filter();
-					fieldMap.printMap();
 					numScans = 0;
 					state++;
 				}
 			}
 		    break;
 	    case 1:
-	    	delay(5000);
-	    	robotY -= 24;
+	    	Serial.println("Filtering first pass...");
+	    	fieldMap.filter();
+	    	fieldMap.printMap();
+	    	Serial.println("Cleaning up...");
+	    	fieldMap.cleanUp();
+	    	fieldMap.printMap();
 	    	state++;
 	    	break;
-	    case 2:
-			processObstacles();
-			if(turret.scan()) {
-				numScans++;
-				if(numScans == 5) {
-					fieldMap.printMap();
-					fieldMap.filter();
-					fieldMap.printMap();
-					numScans = 0;
-					state++;
-				}
-			}
-		    break;
 	    default:
 	    	break;
 	}
@@ -282,22 +280,18 @@ boolean moveToPoint(double x, double y) {
 
 // Glue for attaching encoder interrupts
 void updateEncoderFR() {
-	Serial.println(FR_ENC_PIN);
 	drive.frontRight.encoder.update();
 }
 
 void updateEncoderFL() {
-	Serial.println(FL_ENC_PIN);
 	drive.frontLeft.encoder.update();
 }
 
 void updateEncoderRR() {
-	Serial.println(RR_ENC_PIN);
 	drive.rearRight.encoder.update();	
 }
 
 void updateEncoderRL() {
-	Serial.println(RL_ENC_PIN);
 	drive.rearLeft.encoder.update();
 }
 

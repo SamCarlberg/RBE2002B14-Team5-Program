@@ -4,6 +4,7 @@
 
 const int REAL_OBSTACLE_THRESHOLD = 5;
 const int START_THRESHOLD = 3;
+const int RANDOM_NOISE_THRESHOLD = 3;
 
 Map::Map() {
     width = FIELD_WIDTH;
@@ -51,6 +52,33 @@ void Map::printMap() {
         Serial.print('\n');
     }
     Serial.print('\n');
+}
+
+void Map::cleanUp() {
+	for(int x = 0; x < MAP_WIDTH; x++) {
+		for(int y = 0; y < MAP_HEIGHT; y++) {
+			for(int nibble = 0; nibble < 2; nibble++) {
+				// Sum adjacent cells in cardinal directions (each one includes current cell's value, so subtract it to onyl use 5 cells)
+				if((sumVertical(x, y, nibble) + sumHorizontal(x, y, nibble) - getValue(x, y, nibble)) / 5.0 < RANDOM_NOISE_THRESHOLD) {
+					setValue(x, y, nibble, 0);
+				}
+				// find endpoints separated by one cell
+				if(getValue(x, y, nibble) == 15) {
+					if(getValue(x + 1, y, nibble) == 15) {
+						setValue(x, y, nibble, 14);
+						setValue(x, y, nibble + 1, 14);
+						setValue(x + 1, y, nibble, 14);
+					}
+					if(getValue(x, y + 2, nibble) == 15) {
+						setValue(x, y, nibble, 14);
+						setValue(x, y + 1, nibble, 14);
+						setValue(x, y + 2, nibble, 14);
+					}
+				}
+
+			}
+		}
+	}
 }
 
 void Map::filter() {
@@ -124,7 +152,6 @@ void Map::findAndFormatHorizontalRuns() {
                     }
                     
                     x = (max + 1) / 2;
-                    Serial.println("x set to " + x);
                     if(x >= MAP_WIDTH) {
                         break;
                     }

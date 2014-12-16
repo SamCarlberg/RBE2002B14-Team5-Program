@@ -25,6 +25,9 @@ class Map {
 		// Filters noise and finds endpoints
 		void filter();
 
+		// Called after filter, this removes any stray error values below some threshold
+		void cleanUp();
+
 		// Prints the whole map to serial
 		void printMap();
 
