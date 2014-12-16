@@ -71,33 +71,6 @@ void setup() {
 int numScans = 0;
 int state = 0;
 void loop() {
-	// runStateMachine();
-	// if(turret.scan(0, 360)){
-	// 	lcd.print(turret.scan_XBar);
-	// 	lcd.setCursor(0, 1);
-	// 	lcd.print(turret.scan_YBar);
-
-	// 	shouldKillFire = true;
-	// 	turret.setServoAngle(-75);
-
-		// while(!fan.isAtMaxSpeed()){
-		// 	fan.speedUp();
-		// }
-		// delay(1000);
-		// while(!fan.isStopped()){
-		//     fan.slowDown();
-		// }
-		// delay(1000);
-
-	// 	while(1){
-			
-	// 	}
-
-	// 	// fan.speedUp();
-	// 	// delay(10000);
-	// 	// fan.slowDown();
-
-	// }
 	lcd.clear();
 	lcd.print(state);
 
@@ -125,33 +98,6 @@ void loop() {
 	    default:
 	    	break;
 	}
-
-	// turret.setTurretAngle(252);
-	// turret.setServoAngle(-75);
-
-	// while(true){
-	// 	fan.speedUp();
-	// }
-
-	// turret.setServoAngle(-75);
-	// fan.speedUp();	
-	// delay(10000);
-	// fan.slowDown();
-
-	// Serial.println(turret.getAngle());
-
-	// int input = analogRead(0);
-	// input = map(input, 200, 800, 0, 360);
-	// turret.setTurretAngle(input);
-	// Serial.println(input);
-
-	// int input = analogRead(0);
-	// input = map(input, 200, 800, 0, 180);
-	// input = constrain(input, 0, 180);
-	// turret.setServoAngle(input);
-	// Serial.println(input);
-
-	// testMapSet();
 }
 
 

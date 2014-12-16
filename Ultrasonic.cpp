@@ -6,7 +6,7 @@
 #define NUM_SAMPLES 7
 #define MAX_DISTANCE 36 // inches
 #define DISTANCE_INFINITY 255
-#define MAX_DELAY (MAX_DISTANCE / INCHES_PER_MICROSECOND)
+#define MAX_DELAY (MAX_DISTANCE / INCHES_PER_MICROSECOND * 2)
 
 Ultrasonic::Ultrasonic(int _trigger, int _echo): trigger(_trigger), echo(_echo) {
 	pinMode(trigger, OUTPUT);
@@ -20,10 +20,13 @@ double Ultrasonic::getRangeInches() {
 	for(int i = 0; i < NUM_SAMPLES; i++) {
 		poll();
 		if(distance >= MAX_DISTANCE) {
+			// we've read a value that's past the maximum distance we're allowing the robot to see
 			if(numOutliers < NUM_SAMPLES / 2) {
 				numOutliers++;
 				distance = DISTANCE_INFINITY;
 			} else {
+				// we've already had a lot of outliers,
+				// so just assume the return value will not be accurate and return "infinity"
 				return DISTANCE_INFINITY;
 			}
 		}
