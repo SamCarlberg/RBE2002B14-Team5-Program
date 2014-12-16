@@ -15,7 +15,7 @@ boolean resetting = false;
 
 // PID variables
 // double Kp = 4.6, Ki = 0.022, Kd = 0.008;
-double Kp = 8, Ki = 0, Kd = 0;
+double Kp = -3.5, Ki = -0.03, Kd = -4;
 double accError = 0;
 double lastError = 0;
 
@@ -30,14 +30,14 @@ Turret::Turret():
 }
 
 void Turret::init() {
-	// motor.attach(TURRET_MOTOR_PIN, 1000, 2000);
-	motor.attach(TURRET_MOTOR_PIN);
+	motor.attach(TURRET_MOTOR_PIN, 1000, 2000);
+	// motor.attach(TURRET_MOTOR_PIN);
 	IRServo.attach(IR_SERVO_PIN);
 }
 
 double Turret::getAngle() {
 	// return pot.getAngle();
-	return mapDouble(analogRead(TURRET_POT_PIN), 902, 396, 0, 360);
+	return mapDouble(analogRead(TURRET_POT_PIN), TURRET_POT_0ANGLE, TURRET_POT_360ANGLE, 0, 360);
 }
 
 double Turret::getDistance() {
@@ -55,7 +55,8 @@ void Turret::getObstacleLocation() {
 
 boolean Turret::setTurretAngle(double angle) {
 	double error = constrain(angle, TURRET_MIN_LIMIT, TURRET_MAX_LIMIT) - getAngle();
-	if(abs(error) <= 1) {
+	// Serial.println(error);
+	if(abs(error) <= TURRET_ERROR_THRESHOLD) {
 		accError  = 0; // reset PID
 		lastError = 0; 
 		motor.write(90);
@@ -74,6 +75,7 @@ boolean Turret::setTurretAngle(double angle) {
 void Turret::setServoAngle(double angle){
 	double outAngle = constrain(map(angle, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE, SERVO_MIN_ANGLE_OFFSET, SERVO_MAX_ANGLE_OFFSET), 0, 180);
 	IRServo.write(outAngle);
+	// IRServo.write(angle);
 }
 
 
@@ -98,169 +100,221 @@ void Turret::setServoAngle(double angle){
 // 	return false;
 // }
 
-boolean Turret::scan() {
+boolean Turret::scan(){
+	scan(0, 360);
+}
+
+boolean Turret::scan(double inputMinTurretAngle, double inputMaxTurretAngle) {
 	int tempValue = -1;
-
-	double sum = 0;
-	double xSum = 0;
-	double ySum = 0;
-	double xBar;
-	double yBar;
-
+	boolean isFinished = false;
+	
 	switch(scan_State){
-		//Initialization of scan
-		//
+
+		//Initializing scan variables
 		case 0:
 			scan_PosX = 0;
 			scan_PosY = 0;
-			scan_TurretAngle = 0;
-			scan_ServoAngle = 0;
-			Serial.println("Case 0: Initialization Complete");
+
+			scan_TurretAngle = inputMinTurretAngle;
+			scan_ServoAngle = SERVO_MIN_ANGLE;
+
+			scan_Sum = 0;
+			scan_XSum = 0;
+			scan_YSum = 0;
+
 			scan_State++;
+
+			// Serial.println("Case 0");
 			break;
 
 		//here we set the turret angle to a negative number to compensate for slack
 		case 1:
-			if(setTurretAngle(-45)){
+			if(setTurretAngle(inputMinTurretAngle - 15)){
 				scan_State++;
-				// Serial.println("Case 1: Turret in -45 position");
+
+				// Serial.println("Case 1");
 			}
 			break;
 
-		//here we set the turret angle, and wait for it to return true
+		//Here we set the turret angle, and wait for it to return true
 		case 2:
 			if(setTurretAngle(scan_TurretAngle)){
 				scan_State++;
-				// Serial.println("Case 2: Turret in correct reading position");
+
+				// Serial.println("Case 2");
 			}
 			break;
-		//Then we set the servo angle
+
+		//Then we set the servo position and wait for it to reach its position
 		case 3:
 			setServoAngle(scan_ServoAngle);
-			scan_State++;
-			break;
-		//here we have a delay to allow the servo to reach it's angle
-		case 4:
 			delay(SERVO_DELAY);
+
 			scan_State++;
-			// Serial.println("Case 3-4: Servo in correct reading position");
+
+			// Serial.println("Case 3");
 			break;
+
 		//Then, after the servo and turret are both in place, we measure the flame sensor value
-		//and add it to the 2d array
-		case 5:
-			tempValue = (1024 - 18) - analogRead(IR_SENSOR_PIN);
-			scan_Value[scan_PosY][scan_PosX] = tempValue;
+		//and add it to the calculus variables
+		case 4:
+			tempValue = pow(((1024) - analogRead(IR_SENSOR_PIN)), 2) / 10000;
+			Serial.print(tempValue);
+			Serial.print(" ");
+			// scan_Value[scan_PosX][scan_PosY] = tempValue;
+			scan_Sum += tempValue;
+			scan_XSum += tempValue * (scan_PosX);
+			scan_YSum += tempValue * (scan_PosY);
+
 			scan_ServoAngle += SERVO_ANGLE_INCREMENT;
+			scan_PosY++;
+
 			scan_State++;
-			// Serial.print("Case 5: Value Read: ");
-			// Serial.println(tempValue);
+
+			// Serial.println("Case 4");
 			break;
-		//here, we decide whether to:
-			// increment the servo angle, 
-			// reset the servo angle and increment the turret angle
-			// reset both the servo angle and the turret angle, and continue with the calculation
-		case 6:
+
+		//Here, we decide whether to:
+			// Increment the servo angle, 
+			// Reset the servo angle and increment the turret angle
+			// Reset both the servo angle and the turret angle, and continue with the calculation
+		case 5:
 			if(scan_ServoAngle > SERVO_MAX_ANGLE){
+				Serial.println();
+
 				scan_ServoAngle = 0;
 				scan_PosY = 0;
-				setServoAngle(0);
+
+				setServoAngle(SERVO_MIN_ANGLE);
+
 				scan_TurretAngle += TURRET_ANGLE_INCREMENT;
-				if(scan_TurretAngle >= TURRET_MAX_ANGLE){
+				scan_PosX++;
+
+				if(scan_TurretAngle >= inputMaxTurretAngle){
 					scan_PosX = 0;
 					scan_ServoAngle = 0;
 					scan_TurretAngle = 0;
+
 					scan_State++;
-					// Serial.println("Case 6: Scan finished, values to be displayed");
+
 				} else {
-					scan_PosX++;
+
+					//after incrementing the turret angle, we reset it and continue reading values
 					scan_State = 2;
-					// Serial.println("Case 6: Turret Repositioning");
+
 				}
 			} else {
-				scan_PosY++;
+
+				//after incrementing the servo angle, we take more values
 				scan_State = 3;
 			}
 			break;
-		//Now that we have completer the scan, we reset the turret
-		case 7:
-			if(setTurretAngle(-45)){
-				scan_State++;
-			}
-			break;
-		case 8:
-			if(setTurretAngle(0)){
-				scan_State++;
-			}
-			break;
-		//Then we perform the calculation, and store the heading and pitch of the candle (somewhere)
-		case 9:
-			int i, j;
 
-			for(i = 0; i < IR_DATA_ROWS; i++){
-				for(j = 0; j < IR_DATA_COLS; j++){
-					Serial.print(scan_Value[i][j]);
-					Serial.print("  ");
-				}
-				Serial.println(";");
-			}
-			Serial.println(" ");
-			Serial.println("Finished Scan");
-			Serial.println();
+		//Here we perform the calculation, and store the heading and pitch of the candle (somewhere)
+		case 6:
 
-
-			for(i = 0; i < IR_DATA_ROWS; i++){
-				for(j = 0; j < IR_DATA_COLS; j++){
-					sum += scan_Value[j][i];
-					xSum += scan_Value[j][i] * i;
-					ySum += scan_Value[j][i] * j;
-				}
-			}
-
-			// xBar = (xSum / (double)sum) * (TURRET_MAX_ANGLE / (double)TURRET_ANGLE_INCREMENT);
-			// yBar = (ySum / (double)sum) * (SERVO_MAX_ANGLE / (double)SERVO_ANGLE_INCREMENT);
-
-			xBar = (xSum / sum);
-			yBar = (ySum / sum);
-
-			Serial.print("test: ");
-			Serial.print(xBar);
-			Serial.print("  ");
-			Serial.println(yBar);
-
-			xBar = (xSum / sum) * TURRET_ANGLE_INCREMENT;
-			yBar = (ySum / sum) * SERVO_ANGLE_INCREMENT;
-
-			Serial.print("test 2: ");
-			Serial.print(xBar);
-			Serial.print("  ");
-			Serial.println(yBar);
-
-			xBar = (xSum / sum) * (TURRET_MAX_ANGLE / (double)TURRET_ANGLE_INCREMENT);
-			yBar = (ySum / sum) * (SERVO_MAX_ANGLE / (double)SERVO_ANGLE_INCREMENT);
-
-			Serial.print("Candle located at: ");
-			Serial.print(xBar);
-			Serial.print("  ");
-			Serial.println(yBar);
-
-			Serial.print("X increments: ");
-			Serial.print(IR_DATA_COLS);
-			Serial.print("  Y increments: ");
-			Serial.println(IR_DATA_ROWS);
-
+			scan_XBar = (scan_XSum / scan_Sum) * TURRET_ANGLE_INCREMENT + inputMinTurretAngle + TURRET_ANGLE_OFFSET;
+			scan_YBar = (scan_YSum / scan_Sum) * SERVO_ANGLE_INCREMENT + SERVO_MIN_ANGLE + SERVO_ANGLE_OFFEST;
 
 			scan_State++;
+
 			break;
-		case 10:
+
+		//Here we point the turret in the direction of the flame
+		//First we move it back to get ride of slack
+		case 7:
+			if(setTurretAngle(scan_XBar - 15)){
+				scan_State++;
+			}
+			break;
+
+		//Then we move it to the position calculated in the flame
+		case 8:
+			if(setTurretAngle(scan_XBar)){
+				setServoAngle(scan_YBar);
+				scan_State++;
+			}
+			break;
+
+		//When the turret is pointed in the right direction,
+		//The robot moves on to the next task
+		case 9:
 			//Chillax
+			isFinished = true;
 			break;
 
 		//default case to covered in the event of an emergency
 		default:
 			scan_State = 0;
 			break;
-		
+	
 	}
+	return isFinished;
+}
+
+//This is the quickScan function, it does a ver fast scan
+//and returns either the angle where the candle may be
+//or -1 if no candle was found
+double Turret::quickScan(){
+	double tempAngle = -1;
+	int tempValue = 0;
+
+	switch(scan_State){
+
+		//Initializing scan variables
+		case 0:
+			scan_TurretAngle = TURRET_MIN_ANGLE;
+			setServoAngle(SERVO_QUICK_ANGLE);
+
+			current_Highest = 0;
+			current_HighestAngle = -1;
+
+			scan_State++;
+			break;
+
+		//here we set the turret angle to a negative number to compensate for slack
+		case 1:
+			if(setTurretAngle(TURRET_MIN_ANGLE - 30)){
+				scan_State++;
+			}
+			break;
+
+		//Here we set the turret angle, and wait for it to return true
+		case 2:
+			if(setTurretAngle(scan_TurretAngle)){
+				scan_State++;
+			}
+			break;
+
+		//Then, after the servo and turret are both in place, we measure the flame sensor value
+		//and add it to the calculus variables
+		case 3:
+			tempValue = (1024 - 18) - analogRead(IR_SENSOR_PIN);
+
+			if(tempValue > current_Highest && tempValue > IR_THRESHOLD){
+				current_Highest = tempValue;
+				current_HighestAngle = scan_TurretAngle;
+			}
+
+			if(scan_TurretAngle >= TURRET_MAX_ANGLE){
+				scan_State++;
+			} else {
+				scan_State = 2;
+			}
+			break;
+
+		case 4:
+			tempAngle = current_HighestAngle;
+			break;
+
+		//default case to covered in the event of an emergency
+		default:
+			scan_State = 0;
+			break;
+	
+	}
+
+	return tempAngle;
 }
 
 boolean Turret::processIRData() {

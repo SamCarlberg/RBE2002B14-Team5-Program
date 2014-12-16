@@ -17,22 +17,32 @@
 #include <Point.h>
 
 #define TURRET_ANGLE_INCREMENT 10
-#define TURRET_MAX_ANGLE 180
+#define TURRET_MAX_ANGLE 360
 #define TURRET_MIN_ANGLE 0
-#define TURRET_MIN_LIMIT -45
-#define TURRET_MAX_LIMIT 405
-#define TURRET_POWERLIMIT 60 //constrains to 30 - 150
+#define TURRET_MIN_LIMIT -30
+#define TURRET_MAX_LIMIT 390
+#define TURRET_ANGLE_OFFSET -5
+#define TURRET_POWERLIMIT 50 //constrains to 30 - 150
+
+#define TURRET_POT_0ANGLE   949
+#define TURRET_POT_360ANGLE 444
+#define TURRET_ERROR_THRESHOLD 1
 
 #define SERVO_ANGLE_INCREMENT 5
 #define SERVO_MAX_ANGLE 45
 #define SERVO_MIN_ANGLE 0
-#define SERVO_MAX_ANGLE_OFFSET 149
-#define SERVO_MIN_ANGLE_OFFSET 96
+#define SERVO_QUICK_ANGLE 15
+#define SERVO_MAX_ANGLE_OFFSET 136
+#define SERVO_MIN_ANGLE_OFFSET 90
+#define	SERVO_ANGLE_OFFEST 0
 
 #define SERVO_DELAY 50 //milliseconds
 
 #define IR_DATA_COLS ((TURRET_MAX_ANGLE - TURRET_MIN_ANGLE) / TURRET_ANGLE_INCREMENT)
 #define IR_DATA_ROWS ((SERVO_MAX_ANGLE - SERVO_MIN_ANGLE) / SERVO_ANGLE_INCREMENT)
+
+#define IR_THRESHOLD 200
+#define CENTROID_OFFSET 100
 
 class Turret {
 
@@ -62,7 +72,10 @@ public:
 	void setServoAngle(double angle);
 
 	// Scans 
-	boolean scan();
+	boolean scan(void);
+	boolean scan(double inputMinTurretAngle, double inputMaxTurretAngle);
+
+	double quickScan();
 	
 	// Processes IR data and tries to find the flame location
 	// Returns true once it completes
@@ -72,6 +85,9 @@ public:
 
 	double obstacleXVals[((TURRET_MAX_ANGLE - TURRET_MIN_ANGLE) / TURRET_ANGLE_INCREMENT)];
 	double obstacleYVals[((TURRET_MAX_ANGLE - TURRET_MIN_ANGLE) / TURRET_ANGLE_INCREMENT)];
+
+	double scan_XBar;
+	double scan_YBar;
 
 private:
 	TenTurnPot pot;
@@ -88,11 +104,18 @@ private:
 	int scan_TurretAngle;
 	int scan_ServoAngle;
 
+	double scan_Sum;
+	double scan_XSum;
+	double scan_YSum;
+
+	double current_Highest;
+	double current_HighestAngle;
+
 	//initial values of
 	//x = 36, 10 degree increments over 360 degrees
 	//y = 9, 5 degree increments over 45 degrees
 	// int scan_Value[36][9];
-	int scan_Value[IR_DATA_ROWS][IR_DATA_COLS];
+	int scan_Value[IR_DATA_COLS][IR_DATA_ROWS];
 };
 
 #endif
