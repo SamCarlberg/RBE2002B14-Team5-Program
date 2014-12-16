@@ -92,3 +92,12 @@ void testMapping() {
 		}
 	}
 }
+
+void testMapSet() {
+
+	for(int i = 0; i < 17; i++) {
+		fieldMap.set(81,	 -10.6, true);
+		fieldMap.set(81 - 3, -10.6, true);
+	}
+
+}

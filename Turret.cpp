@@ -37,7 +37,7 @@ void Turret::init() {
 
 double Turret::getAngle() {
 	// return pot.getAngle();
-	return mapDouble(analogRead(TURRET_POT_PIN), 902, 396, 0, 360);
+	return mapDouble(analogRead(TURRET_POT_PIN), 233, 489, 90, 270);
 }
 
 double Turret::getDistance() {

@@ -25,9 +25,9 @@ enum SwerveServoPins {
 
 enum SwerveEncoderPins {
 	FR_ENC_PIN	= 1, // pin 3
-	FL_ENC_PIN	= 0, // pin 2
-	RR_ENC_PIN	= 4, // pin 19
-	RL_ENC_PIN	= 5  // pin 18
+	FL_ENC_PIN	= 0, // pin 2 
+	RR_ENC_PIN	= 4, // pin 18
+	RL_ENC_PIN	= 5  // pin 19
 };
 
 const int SWERVE_POT_PIN = A11;
@@ -56,11 +56,13 @@ const int FAN_MOTOR_PIN = 10;//change this to match the physical robot
 /*
  *  Map constants.
  */
-const static int FIELD_WIDTH  = 96 * 4; // x4 because we keep a 2D array that's 2x width and 2x height
-const static int FIELD_HEIGHT = 96 * 4;
+const static int FIELD_WIDTH  = 96 * 2; // x4 because we keep a 2D array that's 2x width and 2x height
+const static int FIELD_HEIGHT = 96 * 2;
 
 // one bit per cell -> divide by 8
-const static byte MAP_WIDTH	 = FIELD_WIDTH / (3 * 8); // cells are 3 inches on a side
+
+const static byte BITS_PER_CELL = 4;
+const static byte MAP_WIDTH	 = FIELD_WIDTH / (3 * BITS_PER_CELL); // cells are 3 inches on a side
 const static byte MAP_HEIGHT = FIELD_HEIGHT / 3;
 
 /*

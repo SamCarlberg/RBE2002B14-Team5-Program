@@ -43,7 +43,7 @@ void setup() {
 	lcd.print("Setup!");
 	turret.init();
 	// fan.init();
-	drive.init();
+	// drive.init();
 
 	lcd.clear();
 	lcd.print("Initialized");
@@ -52,15 +52,18 @@ void setup() {
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
 	attachInterrupt(RL_ENC_PIN, updateEncoderRL, CHANGE);
 
-	Serial.println(MAP_WIDTH * 8);
-	Serial.println(MAP_HEIGHT);
+	testMapSet();
 }
 
 void loop() {
 	// runStateMachine();
 	// drive.pollGyro();
 
-	turret.scan();
+	// turret.scan();
+	// lcd.clear();
+	// lcd.print(analogRead(TURRET_POT_PIN));
+	// lcd.setCursor(0, 1);
+	// lcd.print(turret.getAngle());
 
 	// int input = analogRead(2);
 	// input = map(input, 200, 800, 0, 360);
@@ -72,6 +75,8 @@ void loop() {
 	// input = constrain(input, 0, 180);
 	// turret.setServoAngle(input);
 	// Serial.println(input);
+
+	// testMapSet();
 }
 
 
@@ -114,9 +119,7 @@ void runStateMachine() {
 			lcd.clear();
 			lcd.print("MOVING");
 			lcd.setCursor(0, 1);
-			lcd.print(nextPoint.x);
-			lcd.setCursor(0, 7);
-			lcd.print(nextPoint.y);
+			lcd.print(String((int) nextPoint.x) + ", " + String((int) nextPoint.y));
 			
 			moveToPoint(nextPoint.x, nextPoint.y);
 
@@ -158,6 +161,16 @@ void processObstacles() {
 		turret.obstacleXVals[i] = 0; // reset the arrays
 		turret.obstacleYVals[i] = 0;
 	}
+
+
+
+	/*
+
+
+		
+		
+
+	*/
 }
 
 // Gets the next target point to drive to
@@ -165,6 +178,8 @@ Point getTarget() {
 	double x = robotX, y = robotY; // target point
 
 	// TODO
+	x += 6;
+	y += 6;
 
 	Point p(x, y);
 	return p;
@@ -185,7 +200,7 @@ boolean moveToPoint(double x, double y) {
 	    case 1:
 	    	// Rotate pods to the correct angle
 			if(drive.rotatePods(moveToPointAngle)) {
-				moveToPointState = 1;
+				moveToPointState = 2;
 			}
 	    	break;
 	    case 2:
@@ -205,17 +220,21 @@ boolean moveToPoint(double x, double y) {
 
 // Glue for attaching encoder interrupts
 void updateEncoderFR() {
+	Serial.println(FR_ENC_PIN);
 	drive.frontRight.encoder.update();
 }
 
 void updateEncoderFL() {
+	Serial.println(FL_ENC_PIN);
 	drive.frontLeft.encoder.update();
 }
 
 void updateEncoderRR() {
+	Serial.println(RR_ENC_PIN);
 	drive.rearRight.encoder.update();	
 }
 
 void updateEncoderRL() {
+	Serial.println(RL_ENC_PIN);
 	drive.rearLeft.encoder.update();
 }

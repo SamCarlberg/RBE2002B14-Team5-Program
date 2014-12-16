@@ -4,6 +4,8 @@
 
 #define INCHES_PER_MICROSECOND (0.01351) // speed of sound at STP
 #define NUM_SAMPLES 3
+#define MAX_DISTANCE 96 // inches
+#define MAX_DELAY (MAX_DISTANCE / INCHES_PER_MICROSECOND)
 
 Ultrasonic::Ultrasonic(int _trigger, int _echo): trigger(_trigger), echo(_echo) {
 	pinMode(trigger, OUTPUT);
@@ -26,7 +28,7 @@ void Ultrasonic::poll() {
 	digitalWrite(trigger, HIGH);
 	delayMicroseconds(10);
 	digitalWrite(trigger, LOW);
-	long duration = pulseIn(echo, HIGH); // returns micros
+	long duration = pulseIn(echo, HIGH, MAX_DELAY); // returns micros
 	delay(20);
 
 	distance = duration * INCHES_PER_MICROSECOND / 2;

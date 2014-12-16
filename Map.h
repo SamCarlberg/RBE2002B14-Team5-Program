@@ -21,11 +21,18 @@ class Map {
 
 		// Is there an obstacle at (x,y)?
 		boolean get(double x, double y);
+		
+		// Filters noise and finds endpoints
+		void filter();
 
 		// Prints the whole map to serial
 		void printMap();
 
 	private:
+		int sumHorizontal(byte, byte, byte);
+		int sumVertical(byte, byte, byte);
+		void formatHorizontal(byte, byte, byte, boolean);
+		void formatVertical(byte, byte, byte, boolean);
 		byte width, height;
 		byte cellSize;
 		byte map[MAP_WIDTH][MAP_HEIGHT];
