@@ -35,7 +35,7 @@ class Fan {
 		Servo fanMotor;
 		int fPin;
 		int curSpeed;
-		int prevMillis;
+		long prevMillis;
 		void arm();
 		void setSpeed(int speed);
 };

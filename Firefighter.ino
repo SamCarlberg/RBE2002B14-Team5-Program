@@ -35,6 +35,8 @@ byte currentState = START;
 double robotX = 0;
 double robotY = 0;
 
+boolean shouldKillFire = false;
+
 void setup() {
 	Serial.begin(9600);
 	lcd.begin(16, 2);
@@ -42,11 +44,11 @@ void setup() {
 	lcd.clear();
 	lcd.print("Setup!");
 	turret.init();
-	// fan.init();
-	// drive.init();
+	fan.init();
+	drive.init();
 
 	lcd.clear();
-	lcd.print("Initialized");
+	// lcd.print("Initialized");
 	attachInterrupt(FR_ENC_PIN, updateEncoderFR, CHANGE);
 	attachInterrupt(FL_ENC_PIN, updateEncoderFL, CHANGE);
 	attachInterrupt(RR_ENC_PIN, updateEncoderRR, CHANGE);
@@ -57,20 +59,52 @@ void setup() {
 
 void loop() {
 	// runStateMachine();
-	// drive.pollGyro();
+	if(turret.scan(0, 360)){
+		lcd.print(turret.scan_XBar);
+		lcd.setCursor(0, 1);
+		lcd.print(turret.scan_YBar);
 
-	// turret.scan();
-	// lcd.clear();
-	// lcd.print(analogRead(TURRET_POT_PIN));
-	// lcd.setCursor(0, 1);
-	// lcd.print(turret.getAngle());
+		shouldKillFire = true;
+		turret.setServoAngle(-75);
 
-	// int input = analogRead(2);
+		while(!fan.isAtMaxSpeed()){
+			fan.speedUp();
+		}
+		delay(300);
+		while(!fan.isStopped()){
+		    fan.slowDown();
+		}
+
+		while(1){
+			
+		}
+
+	// 	// fan.speedUp();
+	// 	// delay(10000);
+	// 	// fan.slowDown();
+
+	}
+
+	// turret.setTurretAngle(252);
+	// turret.setServoAngle(-75);
+
+	// while(true){
+	// 	fan.speedUp();
+	// }
+
+	// turret.setServoAngle(-75);
+	// fan.speedUp();	
+	// delay(10000);
+	// fan.slowDown();
+
+	// Serial.println(turret.getAngle());
+
+	// int input = analogRead(0);
 	// input = map(input, 200, 800, 0, 360);
 	// turret.setTurretAngle(input);
 	// Serial.println(input);
 
-	// int input = analogRead(2);
+	// int input = analogRead(0);
 	// input = map(input, 200, 800, 0, 180);
 	// input = constrain(input, 0, 180);
 	// turret.setServoAngle(input);
@@ -238,3 +272,6 @@ void updateEncoderRL() {
 	Serial.println(RL_ENC_PIN);
 	drive.rearLeft.encoder.update();
 }
+
+
+

@@ -15,18 +15,22 @@ void Fan::init() {
 	fanMotor.attach(FAN_MOTOR_PIN);
 	arm();
 	prevMillis = millis();
+	Serial.println("Initialized prevMillis: " + (String) prevMillis);
+	curSpeed = 0;
 }
 
 void Fan::speedUp() {
+	Serial.println("Millis: " + (String) millis() + " prevMillis: " + (String) prevMillis);
 	if(curSpeed < MAX_SPEED && millis() >= (prevMillis + SPEED_INTERVAL)) {
-		setSpeed(curSpeed + 5);
+		Serial.println("Fan Speeding Up");
+		setSpeed(curSpeed + SPEED_UP_BY);
 		prevMillis = millis();
 	}
 }
 
 void Fan::slowDown() {
 	if(curSpeed > 0 && millis() >= (prevMillis + SLOW_INTERVAL)) {
-		setSpeed(curSpeed - 5);
+		setSpeed(curSpeed - SLOW_DOWN_BY);
 		prevMillis = millis();
 	}
 }
