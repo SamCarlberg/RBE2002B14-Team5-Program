@@ -90,6 +90,7 @@ enum State {
 	CRUNCH_RANGE_DATA,	// Read the ultrasonic mulitple times and add data to the map
 	CLEAN_MAP,			// Find runs and clear outliers and errors
 	FIND_SETPOINT,		// Crunch data to find where the robot should move to
+	AIM_TURRET,
 	MOVE_TO_SETPOINT,	// Move to the setpoint. Continiously scan for a flame
 	TRIANGULATING,		// Triangulate the candle and find it's location
 	EXTINGUISHING,		// Run the fan and put out the flame

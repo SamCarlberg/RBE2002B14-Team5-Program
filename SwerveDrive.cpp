@@ -96,16 +96,18 @@ void SwerveDrive::driveRPM(double rpm) {
 // RR = 2
 // RL = 3
 // FL = 4
-void SwerveDrive::driveStraight(double power) {
+double SwerveDrive::driveStraight(double power) {
 	double frPower = 180 - (power + KpStraight * pollGyro() * sin(toRad(getAngle() + frShift))); // inverted
-	double flPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + flShift));
+	double flPower = 180 - (power + KpStraight * pollGyro() * sin(toRad(getAngle() + flShift)));
 	double rrPower = 180 - (power + KpStraight * pollGyro() * sin(toRad(getAngle() + rrShift)));
-	double rlPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + rlShift));
+	double rlPower = (power + KpStraight * pollGyro() * sin(toRad(getAngle() + rlShift)));
 
 	frontRight.drive(constrain(frPower, 0, 180));
 	frontLeft.drive(constrain(flPower, 0, 180));
 	rearRight.drive(constrain(rrPower, 0, 180));
 	rearLeft.drive(constrain(rlPower, 0, 180));
+
+	return (frontLeft.getDistance() + frontRight.getDistance() + rearLeft.getDistance() + rearRight.getDistance()) / 4.0;
 }
 
 double distanceTravelled = 0;

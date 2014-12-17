@@ -15,7 +15,7 @@ boolean resetting = false;
 
 // PID variables
 // double Kp = 4.6, Ki = 0.022, Kd = 0.008;
-double Kp = -3.2, Ki = -0.03, Kd = -4.2;
+double Kp = -2.0, Ki = -0.1, Kd = -1.0;
 double accError = 0;
 double lastError = 0;
 
@@ -64,6 +64,9 @@ boolean Turret::setTurretAngle(double angle) {
 		motor.write(90);
 		delay(100);
 		return true;
+	}
+	if(abs(error) < TURRET_ANGLE_INCREMENT) {
+		accError += error;
 	}
 	accError += error;
 	double power = Kp * error + Ki * accError + Kd * (error - lastError);

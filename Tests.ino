@@ -117,9 +117,11 @@ void testMapping() {
 	    	}
 	    	break;
 	    case 4: {
-	    	if(moveToPoint(robotX + 36, robotY)) {
-	    		mappingState = 5;
-	    	}
+	    	// if(moveToPoint(robotX + 36, robotY)) {
+	    	// 	mappingState = 5;
+	    	// }
+	    	robotX += 36;
+	    	delay(5000);
 	    	break;
 	    }
 	    case 5:

@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <Constants.h>
 
-const int REAL_OBSTACLE_THRESHOLD = 5;
+const int REAL_OBSTACLE_THRESHOLD = 4;
 const int START_THRESHOLD = 3;
 const int RANDOM_NOISE_THRESHOLD = 3;
 
@@ -65,7 +65,7 @@ void Map::printMap() {
                 if (i == MAP_WIDTH / 2 && j == MAP_HEIGHT / 2 && b == 0) { // center
                     Serial.print('X');
                 } else {
-                    Serial.print((map[i][j] >> (b * 4)) & 15);
+                    Serial.print(getValue(i, j, b));
                 }
                 Serial.print(',');
             }

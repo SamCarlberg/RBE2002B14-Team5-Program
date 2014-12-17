@@ -46,8 +46,8 @@ public:
 	// Initializes servos. Call this in setup()
 	void init();
 
-	// Drives the robot in a straight line
-	void driveStraight(double power);
+	// Drives the robot in a straight line and returns how far the robot's driven since the last encoder reset
+	double driveStraight(double power);
 
 	// Polls the gyro if neccessary and returns the current gyro angle
 	double pollGyro();

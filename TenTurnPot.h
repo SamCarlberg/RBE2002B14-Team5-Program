@@ -10,9 +10,8 @@
 
 #define ZERO 720
 #define MINUS_90 837
-#define ZERO_DEGREES 608
-#define THREE_SIXTY_DEGREE 205
-#define NINETY_DEGREES 485
+#define ZERO_DEGREES 632.0
+#define THREE_SIXTY_DEGREE 379.0
 
 class TenTurnPot {
 public:
@@ -26,7 +25,7 @@ public:
 	// Gets the angle of the pot in degrees. 
 	double getAngle() {
 		// return map(analogRead(pin), minus90, zero, -90, 0);
-		return map(analogRead(pin), ZERO_DEGREES, NINETY_DEGREES, 0, 90);
+		return map(analogRead(pin), ZERO_DEGREES, THREE_SIXTY_DEGREE, 150.0, 330.0);
 	}
 
 private:
