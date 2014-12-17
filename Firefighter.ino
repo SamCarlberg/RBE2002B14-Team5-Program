@@ -18,6 +18,8 @@
 // One robot to bind them here
 //    And of their sleep deprive them
 
+#define PRINTMAP // uncomment to print the map data to Serial
+
 #include <Wire.h>
 #include <SwerveDrive.h>
 #include <Turret.h>
@@ -41,6 +43,7 @@ LinkedList<Point> *previousPoints = new LinkedList<Point>();
 
 byte currentState = START;
 
+Point target(0, 0);
 Point robotLocation(0, 0);
 int state = 0;
 double currentDist = 12;
@@ -48,11 +51,8 @@ double currentDist = 12;
 double robotX = 0;
 double robotY = 0;
 
-boolean shouldKillFire = false;
-
-
 void setup() {
-	Serial.begin(9600);
+	Serial.begin(115200);
 	lcd.begin(16, 2);
 
 	lcd.clear();
@@ -74,99 +74,91 @@ void setup() {
 
 void loop() {
 	// runStateMachine();
-	// Serial.println(analogRead(TURRET_POT_PIN));
-	// delay(100);
-	// turret.setTurretAngle(90);
-	// Serial.println(turret.getAngle());
-	// lcd.clear();
-	// lcd.print(turret.getAngle());
-	// lcd.setCursor(0, 1);
-	// lcd.print(analogRead(TURRET_POT_PIN));
-	// delay(50);
-	testMapping();
+	// testMapping();
+	testLightSensors();
 }
 
-
-Point nextPoint(robotX, robotY);
 void runStateMachine() {
-	lcd.clear();
-	static int numScans = 0;
-	switch(currentState) {
-		case START: {
-			lcd.print("START");
-			if(digitalRead(START_BUTTON_PIN) == 0) {
-				currentState = SCANNING;
-			}
-			break;
-		}
-		case SCANNING: {
-			lcd.print("SCANNING");
-			// scan for fire and obstacles
-			processObstacles();
-			if(turret.scan()) {
-				numScans++;
-				if(numScans == 5) {
-					numScans = 0;
-					currentState = CALCULATING;
-				}
-			}		
-			break;
-		}
-		case CALCULATING: {
-			lcd.print("FILTER MAP");
-			fieldMap.filter();
-			lcd.clear();
-			lcd.print("CLEAN MAP");
-			fieldMap.cleanUp();
-			fieldMap.printMap();
-			while(1);
-			nextPoint = getTarget();
-			currentState = MOVING;
-			break;
-		}
-		case TURNING: { // Rotate pods
-			lcd.print("TURNING");
-			break;
-		}
-		case MOVING: {
-			lcd.print("MOVING TO");
-			lcd.setCursor(0, 1);
-			lcd.print(String((int) nextPoint.x) + ", " + String((int) nextPoint.y));
-			
-			if(moveToPoint(nextPoint.x, nextPoint.y)) {
-				currentState = SCANNING;
-			}
+	static int curAngle = 0;
+	static Point prev;
+	switch (currentState) {
+	    case START:
+	    	break;
 
-			break;
-		}
-		case EXTINGUISHING: {
-			/*
-				
-				Display X Y Z coordinates of the flame on the LCD
-				ramp up the fan and run it for n millis
+	    case INCREMENT_TURRET:
+	    	if(turret.setTurretAngle(curAngle)) {
+	    		curAngle += TURRET_ANGLE_INCREMENT;
+	    		currentState = CRUNCH_RANGE_DATA;
+	    	}
+	    	break;
 
-			 */
-			break;
-		}
-		case RETURNING: {
-			/*
-				either backtrack exactly
-				or use A* or Dijkstra's algorithm to go back to the start
+	    case CRUNCH_RANGE_DATA:
+	    	for(int i = 0; i < RANGE_SAMPLES_PER_INCREMENT; i++) {
+	    		Point* obstacleLocation = turret.getObstacleLocation(i);
+	    		fieldMap.set(robotX + obstacleLocation->x, robotY + obstacleLocation->y, true);
+	    	}
+	    	if(curAngle > TURRET_MAX_ANGLE) {
+	    		curAngle = 0;
+	    		currentState = CLEAN_MAP;
+	    	} else {
+	    		currentState = INCREMENT_TURRET;
+	    	}
+	    	break;
 
-				if(atStart) currentState = COMPLETE;
-				else goBackToStart();
+	    case CLEAN_MAP:
+	    	#ifdef PRINTMAP fieldMap.printMap(); // takes a while, comment out if we don't need to see the initial map
+	    	#endif
+	    	fieldMap.filter();
+	    	fieldMap.cleanUp();
+	    	#ifdef PRINTMAP fieldMap.printMap(); // ditto as above
+	    	#endif
+	    	currentState = FIND_SETPOINT;
+	    	break;
 
-			 */
-			break;
-		}
-		case COMPLETE: {
-			/*
-				Display the x, y, z coordinates of the flame on the LCD.
-			 */
-			break;
-		}
-		default:
-			return;
+	    case FIND_SETPOINT:
+	    	// target = getTarget();
+
+	    	currentState = MOVE_TO_SETPOINT;
+	    	break;
+
+	    case MOVE_TO_SETPOINT:
+	    	// move in direction returned by getNextDirection()
+	    	// until we see the flame with continuous IR scanning
+	    	// or until we're ~6" away from a wall.
+	    	// When we stop, add current position to history so we
+	    	// can backtrack to the beginning 
+	    	break;
+
+	    case TRIANGULATING:
+	    	// Scan for accurate flame position, move some known distance, and scan again
+	    	break;
+
+	    case EXTINGUISHING:
+	    	// Speed up the fan, run it for some set time, then stop it and go on to next state
+	    	static boolean speedingUp = true;
+	    	if(speedingUp && !fan.isAtMaxSpeed()) {
+	    		fan.speedUp();
+	    	}
+	    	break;
+
+	    case RETURNING: {
+	    	Point target = previousPoints->pop();
+	    	while(previousPoints->size() > 0) {
+	    		if(moveToPoint(target.x, target.y)) {
+	    			target = previousPoints->pop();
+	    		}
+	    	}
+	    	currentState = COMPLETE;
+	    	break;
+
+	    }
+	    case COMPLETE:
+	    	// do something
+	    	break;
+
+	    default:
+	    	// how did we get here?
+	    	break;	      
 	}
 }
 
@@ -188,37 +180,49 @@ double distanceToPoint(double x, double y) {
 }
 
 // Gets the next target point to drive to
-Point getTarget() {
-	Point nearestEndpoint(255, 255);
-	double nearestDist = distanceToPoint(255, 255);
-	// find nearest '15'
-	for(int x = -FIELD_WIDTH / 2; x < FIELD_WIDTH / 2; x += 3) {
-		for(int y = -FIELD_HEIGHT / 2; y <= FIELD_HEIGHT / 2; y += 3) {
-			if(fieldMap.get(x, y) == 15) {
-				double distToPoint = distanceToPoint(x, y);
-				if(distToPoint < nearestDist && !visitedPoint(x, y)) {
-					nearestEndpoint.x = x;
-					nearestEndpoint.y = y;
-					nearestDist = distToPoint;
-				}
-			}
+byte getNextDirection() {
+	Point target;
+	byte direction   = 0;
+	unsigned int max = 0;
+	unsigned int sum1 = 0, sum2 = 0;
+
+	for(int y = -FIELD_HEIGHT / 2; y < FIELD_HEIGHT / 2; y += 3) {
+		for(int x = robotX; x < FIELD_WIDTH / 2; x += 3) {
+			sum1 += fieldMap.get(x, y);
+		}
+		for(int x = -FIELD_WIDTH / 2; x < robotX; x += 3) {
+			sum2 += fieldMap.get(x, y);
 		}
 	}
-	if(nearestEndpoint.x == 255 || nearestEndpoint.y == 255) {
-		nearestEndpoint.x = 0; // make sure we don't try to move outside the field
-		nearestEndpoint.y = 0;
-		return nearestEndpoint;
+	if(sum1 > max) {
+		max = sum1;
+		direction = 1; // max is in positive X direction
 	}
-	// To move to offset point closest to robot:
-	// setpoint is +x +y, offset point is -x -y
-	// setpoint is +x -y, offset point is -x +y
-	// setpoint is -x -y, offset point is +x +y
-	// setpoint is -x +y, offset point is +x -y
-	double distOffset = 6;
-	nearestEndpoint.x -= sign(nearestEndpoint.x - robotX) * distOffset;
-	nearestEndpoint.y -= sign(nearestEndpoint.y - robotY) * distOffset;
-	previousPoints->add(nearestEndpoint);
-	return nearestEndpoint;
+	if(sum2 > max) {
+		max = sum2;
+		direction = 3; // max is in negative X direction
+	}
+
+	sum1 = 0;
+	sum2 = 0;
+	for(int x = -FIELD_WIDTH / 2; x < FIELD_WIDTH / 2; x += 3) {
+		for(int y = robotY; y < FIELD_HEIGHT / 2; y += 3) {
+			sum1 += fieldMap.get(x, y);
+		}
+		for(int y = -FIELD_HEIGHT / 2; y < robotY; y += 3) {
+			sum2 += fieldMap.get(x, y);
+		}
+	}
+	if(sum1 > max) {
+		max = sum1;
+		direction = 2; // max is in positive Y direction
+	}
+	if(sum2 > max) {
+		max = sum2;
+		direction = 4; // max is in negative Y direction
+	}
+
+	return direction;
 }
 
 boolean visitedPoint(double x, double y) {
@@ -248,7 +252,7 @@ boolean moveToPoint(double x, double y) {
 				moveToPointState = 2;
 			}
 	    	break;
-	    case 2:
+	    case 2: {
 	    	// Drive the calculated distance and return true once it happens
 	    	double distanceMoved = 0;
 	    	if((distanceMoved = drive.driveDistance(moveToPointDist)) >= moveToPointDist) {
@@ -258,6 +262,7 @@ boolean moveToPoint(double x, double y) {
 	    		return true;
 	    	}
 	    	break;
+	    }
 	    default:
 	    	moveToPointState = 0;
 	    	break;

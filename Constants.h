@@ -70,10 +70,10 @@ const static byte MAP_HEIGHT = FIELD_HEIGHT / 3;
 /*
  *  Light sensor constants
  */
-const static int FRONT_LS_PIN = A10;
-const static int RIGHT_LS_PIN = A9;
-const static int REAR_LS_PIN = A8;
-const static int LEFT_LS_PIN = A7;
+const static int FRONT_LS_PIN = A8; // correct
+const static int RIGHT_LS_PIN = A10; // correct
+const static int REAR_LS_PIN = A8; // ? bad sensor
+const static int LEFT_LS_PIN = A7; // ? bad sensor
 
 const static int LS_BLACK_VALUE = 700; // a light sensor reading less than this is "black"
 
@@ -85,14 +85,16 @@ const static int LS_BLACK_VALUE = 700; // a light sensor reading less than this 
  *  State machine constants.
  */
 enum State {
-	START,
-	SCANNING,
-	TURNING,
-	MOVING,
-	CALCULATING,
-	EXTINGUISHING,
-	RETURNING,
-	COMPLETE
+	START,				// Zeroing and random initialization stuff
+	INCREMENT_TURRET,	// Increment the turret angle by some set amount
+	CRUNCH_RANGE_DATA,	// Read the ultrasonic mulitple times and add data to the map
+	CLEAN_MAP,			// Find runs and clear outliers and errors
+	FIND_SETPOINT,		// Crunch data to find where the robot should move to
+	MOVE_TO_SETPOINT,	// Move to the setpoint. Continiously scan for a flame
+	TRIANGULATING,		// Triangulate the candle and find it's location
+	EXTINGUISHING,		// Run the fan and put out the flame
+	RETURNING,			// Return to the starting point by backtracking over visited points
+	COMPLETE			// Do something
 };
 
 #endif

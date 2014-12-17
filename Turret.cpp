@@ -15,9 +15,12 @@ boolean resetting = false;
 
 // PID variables
 // double Kp = 4.6, Ki = 0.022, Kd = 0.008;
-double Kp = -3.5, Ki = -0.03, Kd = -4;
+double Kp = -3.2, Ki = -0.03, Kd = -4.2;
 double accError = 0;
 double lastError = 0;
+
+#define RANGE_SAMPLES_PER_READING 5
+int currentSampleNum = 0;
 
 Turret::Turret():
 	pot(A0, 487, 110),
@@ -44,13 +47,12 @@ double Turret::getDistance() {
 	return rangeSensor.getRangeInches();
 }
 
-void Turret::getObstacleLocation() {
+Point* Turret::getObstacleLocation(int sampleNumber) {
 	double dist = getDistance() + BOOM_LENGTH;
 	double angle = getAngle();
 	double x = dist * cos(toRad(angle));
 	double y = dist * sin(toRad(angle));
-	obstacleXVals[curAngle / TURRET_ANGLE_INCREMENT - 1] = x;
-	obstacleYVals[curAngle / TURRET_ANGLE_INCREMENT - 1] = y;
+	return new Point(x, y);
 }
 
 boolean Turret::setTurretAngle(double angle) {
@@ -79,25 +81,25 @@ void Turret::setServoAngle(double angle){
 }
 
 
-boolean Turret::scanUltrasonic() {
-	if(resetting) {
-		curAngle = TURRET_MIN_ANGLE;
-		resetting = !setTurretAngle(curAngle); // if we're not there, then we're still resettting
-		return !resetting;
-	}
-	if(setTurretAngle(curAngle)) {
-		if(abs(curAngle - TURRET_MAX_ANGLE) <= 0.5) {
-			getObstacleLocation();
-			Serial.println("Finished scan!");
-			resetting = true;
-		} else {
-			curAngle += TURRET_ANGLE_INCREMENT;
-			getObstacleLocation();
-			setTurretAngle(curAngle);
-		}
-	}
-	return false;
-}
+// boolean Turret::scanUltrasonic() {
+// 	if(resetting) {
+// 		curAngle = TURRET_MIN_ANGLE;
+// 		resetting = !setTurretAngle(curAngle); // if we're not there, then we're still resettting
+// 		return !resetting;
+// 	}
+// 	if(setTurretAngle(curAngle)) {
+// 		if(abs(curAngle - TURRET_MAX_ANGLE) <= 0.5) {
+// 			getObstacleLocation();
+// 			Serial.println("Finished scan!");
+// 			resetting = true;
+// 		} else {
+// 			curAngle += TURRET_ANGLE_INCREMENT;
+// 			getObstacleLocation();
+// 			setTurretAngle(curAngle);
+// 		}
+// 	}
+// 	return false;
+// }
 
 boolean Turret::scan(){
 	scan(0, 360);

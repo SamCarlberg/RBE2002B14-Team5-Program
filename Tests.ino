@@ -71,47 +71,66 @@ void testFan() {
 	fan.speedUp();
 }
 
-boolean scanned = false;
 int mappingState = 0;
-int scanNumber = 0;
 const int numScans = 5;
-int numMoves = 0;
 void testMapping() {
-	switch(mappingState) {
-		case 0:
-			if(turret.scanUltrasonic()) {
-				processObstacles();
-				scanNumber++;
-				if(scanNumber == numScans) {
-					mappingState++;
-					scanNumber = 0;
-				}
-			}
-			break;
-		case 1:
-			fieldMap.filter();
-			fieldMap.cleanUp();
-			mappingState++;
-			break;
-		case 2:
-			numMoves++;
-
-			if(numMoves >= 3) {
-				mappingState = -1;
-				break;
-			}
-
-			Serial.print("Map update# "); Serial.println(numMoves);
-			fieldMap.printMap();
-			mappingState++;
-			break;
-		case 3:
-			if(moveToPoint(robotX + 24, robotY)) {
-				mappingState = 0;
-			}
-			break;
-		default:
-			break;
+	static int curAngle = 0;
+	lcd.clear();
+	lcd.print("State: ");
+	lcd.setCursor(8, 0);
+	lcd.print(mappingState);
+	switch (mappingState) {
+	    case 0: // increase the turret angle
+	    	lcd.setCursor(0, 1);
+	    	lcd.print(turret.getAngle());
+	    	if(turret.setTurretAngle(curAngle)) {
+	    		curAngle += TURRET_ANGLE_INCREMENT;
+	    		mappingState = 1;
+	    		lcd.clear();
+	    		lcd.print("Moved " + String(curAngle));
+	    	}
+	    	break;
+	    case 1: // read turret ultrasonic several times and store data in map
+	    	lcd.clear();
+	    	lcd.print("Reading ping");
+	    	for(int i = 0; i < numScans; i++) {
+	    		Point* obsLoc = turret.getObstacleLocation(i);
+	    		fieldMap.set(robotX + obsLoc->x, robotY + obsLoc->y, true);
+	    	}
+	    	if(curAngle > TURRET_MAX_ANGLE) {
+	    		curAngle = 0;
+	    		mappingState = 2;
+	    	} else {
+	    		mappingState = 0;
+	    	}
+	    	break;
+	    case 2: // add range data to map and apply filters
+	    	fieldMap.printMap();
+	    	fieldMap.filter();
+	    	fieldMap.cleanUp();
+	    	fieldMap.printMap();
+	    	mappingState = 3;
+	    	break;
+	    case 3:
+	    	if(turret.setTurretAngle(0)) {
+	    		mappingState = 4;
+	    	}
+	    	break;
+	    case 4: {
+	    	if(moveToPoint(robotX + 36, robotY)) {
+	    		mappingState = 5;
+	    	}
+	    	break;
+	    }
+	    case 5:
+	    	fieldMap.printMap();
+	    	fieldMap.filter();
+	    	fieldMap.cleanUp();
+	    	fieldMap.printMap();
+	    	mappingState = 6;
+	    	break;
+	    default:
+	    	break;
 	}
 }
 
@@ -124,4 +143,16 @@ void testMapSet() {
 		fieldMap.set(79,	 -10.6, true);
 	}
 
+}
+
+void testLightSensors() {
+	lcd.clear();
+	lcd.print(analogRead(FRONT_LS_PIN));
+	lcd.setCursor(5, 0);
+	lcd.print(analogRead(RIGHT_LS_PIN));
+	lcd.setCursor(0, 1);
+	lcd.print(analogRead(REAR_LS_PIN));
+	lcd.setCursor(5, 1);
+	lcd.print(analogRead(LEFT_LS_PIN));
+	delay(50);
 }

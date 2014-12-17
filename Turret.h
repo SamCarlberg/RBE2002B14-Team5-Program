@@ -28,6 +28,8 @@
 #define TURRET_POT_360ANGLE 456
 #define TURRET_ERROR_THRESHOLD 1
 
+#define RANGE_SAMPLES_PER_INCREMENT 4
+
 #define SERVO_ANGLE_INCREMENT 5
 #define SERVO_MAX_ANGLE 45
 #define SERVO_MIN_ANGLE 0
@@ -61,7 +63,7 @@ public:
 	double getDistance();
 
 	// Gets the location of the closest obstacle relative to the robot.
-	void getObstacleLocation();
+	Point* getObstacleLocation(int sampleNumber);
 
 	// Sets the angle of the turret to the given angle.
 	// Returns true once it reaches that angle.
@@ -77,7 +79,7 @@ public:
 
 	double quickScan();
 
-	boolean scanUltrasonic();
+	// boolean scanUltrasonic();
 	
 	// Processes IR data and tries to find the flame location
 	// Returns true once it completes

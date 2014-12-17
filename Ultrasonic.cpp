@@ -3,7 +3,7 @@
 #include <RunningMedian.h>
 
 #define INCHES_PER_MICROSECOND (0.01351) // speed of sound at STP
-#define NUM_SAMPLES 7
+#define NUM_SAMPLES 5
 #define MAX_DISTANCE 48 // inches
 #define DISTANCE_INFINITY 255
 #define MAX_DELAY (MAX_DISTANCE / INCHES_PER_MICROSECOND * 2.2)
