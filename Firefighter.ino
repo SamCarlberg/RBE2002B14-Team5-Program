@@ -39,6 +39,11 @@ Map fieldMap;
 Fan fan;
 LinkedList<Point> *previousPoints = new LinkedList<Point>();
 
+Ultrasonic frontUltrasonic = Ultrasonic(27, 26);
+Ultrasonic backUltrasonic = Ultrasonic(23, 22);
+Ultrasonic rightUltrasonic = Ultrasonic(25, 24);
+Ultrasonic leftUltrasonic = Ultrasonic(29, 28);
+
 byte currentState = START;
 
 Point robotLocation(0, 0);
