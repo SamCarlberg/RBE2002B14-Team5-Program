@@ -39,6 +39,11 @@ Map fieldMap;
 Fan fan;
 LinkedList<Point> *previousPoints = new LinkedList<Point>();
 
+Ultrasonic frontUltrasonic = Ultrasonic(27, 26);
+Ultrasonic backUltrasonic = Ultrasonic(23, 22);
+Ultrasonic rightUltrasonic = Ultrasonic(25, 24);
+Ultrasonic leftUltrasonic = Ultrasonic(29, 28);
+
 byte currentState = START;
 
 Point robotLocation(0, 0);
@@ -70,6 +75,8 @@ void setup() {
 
 	previousPoints->add(robotLocation);
 	pinMode(START_BUTTON_PIN, INPUT_PULLUP);
+	
+	// drive.driveStraight(180);
 }
 
 void loop() {
@@ -83,7 +90,27 @@ void loop() {
 	// lcd.setCursor(0, 1);
 	// lcd.print(analogRead(TURRET_POT_PIN));
 	// delay(50);
-	testMapping();
+	while(1) {
+		// if(drive.rotatePods(0, 2)){
+		// 	break;
+		// }
+		lcd.clear();
+		lcd.print(analogRead(SWERVE_POT_PIN));
+		lcd.print(" ");
+		lcd.print(drive.getAngle());
+		delay (100);
+	}
+	// while(1) {
+	// 	if(drive.rotatePods(360, 2)){
+	// 		break;
+	// 	}
+	// 	// lcd.clear();
+	// 	// lcd.print(analogRead(SWERVE_POT_PIN));
+	// 	// lcd.print(" ");
+	// 	// lcd.print(drive.getAngle());
+	// 	// delay (100);
+	// }
+	// testRightWall();
 }
 
 
@@ -248,7 +275,7 @@ boolean moveToPoint(double x, double y) {
 				moveToPointState = 2;
 			}
 	    	break;
-	    case 2:
+	    case 2: {
 	    	// Drive the calculated distance and return true once it happens
 	    	double distanceMoved = 0;
 	    	if((distanceMoved = drive.driveDistance(moveToPointDist)) >= moveToPointDist) {
@@ -258,6 +285,7 @@ boolean moveToPoint(double x, double y) {
 	    		return true;
 	    	}
 	    	break;
+	    }
 	    default:
 	    	moveToPointState = 0;
 	    	break;
