@@ -125,3 +125,110 @@ void testMapSet() {
 	}
 
 }
+
+int wallFollowState = 0;
+int currentDirection = 0;
+int podAngle = 0;
+void testRightWall() {
+	switch(wallFollowState) {
+		case 0:
+			Serial.print("frontUltrasonic: ");Serial.println(frontUltrasonic.getRangeInches());
+			Serial.print("rightUltrasonic: ");Serial.println(rightUltrasonic.getRangeInches());
+			Serial.print("backUltrasonic: ");Serial.println(backUltrasonic.getRangeInches());
+			Serial.print("leftUltrasonic: ");Serial.println(leftUltrasonic.getRangeInches());
+			// if(frontUltrasonic.getRangeInches() <= 6) {
+			// 	wallFollowState = 1;
+			// } else if(rightUltrasonic.getRangeInches() <= 6) {
+			// 	wallFollowState = 2;
+			// } else if(backUltrasonic.getRangeInches() <= 6) {
+			// 	wallFollowState = 3;
+			// } else if(leftUltrasonic.getRangeInches() <= 6) {
+			// 	wallFollowState = 4;
+			// }
+			break;
+		case 1:
+			if(currentDirection == 0) {
+				drive.drive(90);
+				wallFollowState = 5;
+			} else {
+				if(drive.rotatePods(180, 2)) {
+					wallFollowState = 8;
+				}
+			}
+			break;
+		case 2:
+			if(currentDirection == 1) {
+				drive.drive(90);
+				wallFollowState = 5;
+			} else {
+				if(drive.rotatePods(270, 2)){
+					wallFollowState = 9;
+				}
+			}
+			break;
+		case 3:
+			if(currentDirection == 2) {
+				drive.drive(90);
+				wallFollowState = 5;
+			} else {
+				if(drive.rotatePods(0, 2)) {
+					wallFollowState = 10;
+				}
+			}
+			break;
+		case 4:
+			if(currentDirection == 3) {
+				drive.drive(90);
+				wallFollowState = 5;
+			} else {
+				if(drive.rotatePods(90, 2)) {
+					wallFollowState = 11;
+				}
+			}
+			break;
+		case 5:
+			currentDirection = (currentDirection++) % 4;
+
+			wallFollowState = 6;
+			break;
+		case 6:
+			if(drive.rotatePods(currentDirection * 90), 2) {
+				wallFollowState = 7;
+			}
+			break;
+		case 7:
+			drive.driveStraight(180);
+			wallFollowState = 0;
+			break;
+		case 8:
+			if(frontUltrasonic.getRangeInches() > 8) {
+				wallFollowState = 6;
+			} else {
+				drive.driveStraight(180);
+			}
+			break;
+		case 9:
+			if(leftUltrasonic.getRangeInches() > 8) {
+				wallFollowState = 6;
+			} else {
+				drive.driveStraight(180);
+			}			
+			break;
+		case 10:
+			if(backUltrasonic.getRangeInches() > 8) {
+				wallFollowState = 6;
+			} else {
+				drive.driveStraight(180);
+			}
+			break;
+		case 11:
+			if(rightUltrasonic.getRangeInches() > 8) {
+				wallFollowState = 6;
+			} else {
+				drive.driveStraight(180);
+			}
+			break;
+		default:
+			break;
+	}
+}
