@@ -17,16 +17,16 @@
 #include <Point.h>
 
 #define TURRET_ANGLE_INCREMENT 10
-#define TURRET_MAX_ANGLE 360
 #define TURRET_MIN_ANGLE 0
+#define TURRET_MAX_ANGLE 360
 #define TURRET_MIN_LIMIT -30
 #define TURRET_MAX_LIMIT 390
-#define TURRET_ANGLE_OFFSET -8
+#define TURRET_ANGLE_OFFSET 7
 #define TURRET_POWERLIMIT 30
 
 #define TURRET_POT_0ANGLE   961
 #define TURRET_POT_360ANGLE 458
-#define TURRET_ERROR_THRESHOLD 1
+#define TURRET_ERROR_THRESHOLD 2
 
 #define SERVO_ANGLE_INCREMENT 5
 #define SERVO_MAX_ANGLE 45
@@ -88,6 +88,7 @@ public:
 
 	double scan_XBar;
 	double scan_YBar;
+	double scan_Sum;
 
 private:
 	TenTurnPot pot;
@@ -103,8 +104,7 @@ private:
 	int scan_PosY;
 	int scan_TurretAngle;
 	int scan_ServoAngle;
-
-	double scan_Sum;
+	
 	double scan_XSum;
 	double scan_YSum;
 
