@@ -42,8 +42,8 @@ const double DEGREES_PER_ENC_TICK = 2.0; // 180 ticks per rev (counting rising a
  */
 const int TURRET_MOTOR_PIN			= 9; // Change this to match the physical robot
 const int TURRET_POT_PIN 			= A1; // analog
-const int ULTRASONIC_TRIGGER_PIN	= 23;
-const int ULTRASONIC_ECHO_PIN		= 24;
+const int ULTRASONIC_TRIGGER_PIN	= 22;
+const int ULTRASONIC_ECHO_PIN		= 23;
 const int BOOM_LENGTH 				= 7; // inches
 const int IR_SERVO_PIN 				= 11;
 const int IR_SENSOR_PIN				= A2; //analog

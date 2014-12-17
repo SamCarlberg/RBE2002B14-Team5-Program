@@ -72,184 +72,70 @@ void setup() {
 	pinMode(START_BUTTON_PIN, INPUT_PULLUP);
 }
 
-int numScans = 0;
 void loop() {
-	// lcd.clear();
-	// lcd.print(state);
-
-	// switch (state) {
-	//     case 0:
-	// 		processObstacles();
-	// 		if(turret.scan()) {
-	// 			numScans++;
-	// 			if(numScans == 5) {
-	// 				fieldMap.printMap();
-	// 				numScans = 0;
-	// 				state++;
-	// 			}
-	// 		}
-	// 	    break;
-	//     case 1:
-	//     	Serial.println("Filtering first pass...");
-	//     	fieldMap.filter();
-	//     	fieldMap.printMap();
-	//     	Serial.println("Cleaning up...");
-	//     	fieldMap.cleanUp();
-	//     	fieldMap.printMap();
-	//     	state++;
-	//     	break;
-	//     default:
-	//     	break;
-	// }
-
-	// Serial.println(state);
-
-	switch (state) {
-		case 0:
-		  if(digitalRead(START_BUTTON_PIN) == 0){
-		  	state++;
-		  }
-		  break;
-	    case 1:
-	      if(drive.rotatePods(180)){
-	      	state++;
-	      }
-	      break;
-	    case 2:
-	      if(drive.driveDistance(currentDist) >= currentDist){
-	      	state++;
-	      }
-	      // drive.driveStraight(90);
-	      break;
-	    case 3:
-	      if(digitalRead(START_BUTTON_PIN) == 0){
-		  	state++;
-		  }
-	      break;
-	    case 4:
-	      if(drive.rotatePods(0)){
-	      	state++;
-	      }
-	      break;
-	    case 5:
-	      if(drive.driveDistance(currentDist) >= currentDist){
-	      	state = 0;
-	      	currentDist += 12;
-	      }
-	      break;
-
-	    default:
-	      state = 0;
-	      break;
-	}
-
-
 	// runStateMachine();
-	// double temp = drive.pollGyro();
-	// Serial.println(temp);
-
-	// if(turret.scan(0, 360)){
-	// 	lcd.print(turret.scan_XBar);
-	// 	lcd.setCursor(0, 1);
-	// 	lcd.print(turret.scan_YBar);
-
-	// 	shouldKillFire = true;
-	// 	turret.setServoAngle(-75);
-
-	// 	while(!fan.isAtMaxSpeed()){
-	// 		fan.speedUp();
-	// 	}
-	// 	delay(300);
-	// 	while(!fan.isStopped()){
-	// 	    fan.slowDown();
-	// 	}
-
-	// 	while(1){
-			
-	// 	}
-
-	// 	// fan.speedUp();
-	// 	// delay(10000);
-	// 	// fan.slowDown();
-
-	// }
-
-	// turret.setTurretAngle(252);
-	// turret.setServoAngle(-75);
-
-	// while(true){
-	// 	fan.speedUp();
-	// }
-
-	// turret.setServoAngle(-75);
-	// fan.speedUp();	
-	// delay(10000);
-	// fan.slowDown();
-
+	// Serial.println(analogRead(TURRET_POT_PIN));
+	// delay(100);
+	// turret.setTurretAngle(90);
 	// Serial.println(turret.getAngle());
-
-	// int input = analogRead(0);
-	// input = map(input, 200, 800, 0, 360);
-	// turret.setTurretAngle(input);
-	// Serial.println(input);
-
-	// int input = analogRead(0);
-	// input = map(input, 200, 800, 0, 180);
-	// input = constrain(input, 0, 180);
-	// turret.setServoAngle(input);
-	// Serial.println(input);
-
-	// int input = analogRead(0);
-	// Serial.print(analogRead(SWERVE_POT_PIN));
-	// Serial.print(", ");
-	// input = constrain(map(input, 200, 800, 0, 360), 0, 360);
-	// drive.rotatePods(input);
-	// Serial.println(input);
+	// lcd.clear();
+	// lcd.print(turret.getAngle());
+	// lcd.setCursor(0, 1);
+	// lcd.print(analogRead(TURRET_POT_PIN));
+	// delay(50);
+	testMapping();
 }
 
 
 Point nextPoint(robotX, robotY);
 void runStateMachine() {
 	lcd.clear();
+	static int numScans = 0;
 	switch(currentState) {
 		case START: {
-			lcd.clear();
 			lcd.print("START");
-			// Zero as many things as possible
-			if(drive.rotatePods(0)) {
+			if(digitalRead(START_BUTTON_PIN) == 0) {
 				currentState = SCANNING;
 			}
 			break;
 		}
 		case SCANNING: {
-			lcd.clear();
 			lcd.print("SCANNING");
 			// scan for fire and obstacles
+			processObstacles();
 			if(turret.scan()) {
-				currentState = CALCULATING;
+				numScans++;
+				if(numScans == 5) {
+					numScans = 0;
+					currentState = CALCULATING;
+				}
 			}		
 			break;
 		}
 		case CALCULATING: {
+			lcd.print("FILTER MAP");
+			fieldMap.filter();
 			lcd.clear();
-			lcd.print("CALCULATING");
-			processObstacles();
+			lcd.print("CLEAN MAP");
+			fieldMap.cleanUp();
+			fieldMap.printMap();
+			while(1);
 			nextPoint = getTarget();
 			currentState = MOVING;
 			break;
 		}
 		case TURNING: { // Rotate pods
-			lcd.clear();
 			lcd.print("TURNING");
 			break;
 		}
 		case MOVING: {
-			lcd.clear();
-			lcd.print("MOVING");
+			lcd.print("MOVING TO");
 			lcd.setCursor(0, 1);
 			lcd.print(String((int) nextPoint.x) + ", " + String((int) nextPoint.y));
 			
-			moveToPoint(nextPoint.x, nextPoint.y);
+			if(moveToPoint(nextPoint.x, nextPoint.y)) {
+				currentState = SCANNING;
+			}
 
 			break;
 		}
@@ -305,6 +191,7 @@ double distanceToPoint(double x, double y) {
 Point getTarget() {
 	Point nearestEndpoint(255, 255);
 	double nearestDist = distanceToPoint(255, 255);
+	// find nearest '15'
 	for(int x = -FIELD_WIDTH / 2; x < FIELD_WIDTH / 2; x += 3) {
 		for(int y = -FIELD_HEIGHT / 2; y <= FIELD_HEIGHT / 2; y += 3) {
 			if(fieldMap.get(x, y) == 15) {
@@ -363,7 +250,10 @@ boolean moveToPoint(double x, double y) {
 	    	break;
 	    case 2:
 	    	// Drive the calculated distance and return true once it happens
-	    	if(drive.driveDistance(moveToPointDist) >= moveToPointDist) {
+	    	double distanceMoved = 0;
+	    	if((distanceMoved = drive.driveDistance(moveToPointDist)) >= moveToPointDist) {
+	    		robotX += distanceMoved * cos(toRad(drive.getAngle())); // getAngle should equal the calculated angle
+	    		robotY += distanceMoved * sin(toRad(drive.getAngle()));
 	    		moveToPointState = 0;
 	    		return true;
 	    	}

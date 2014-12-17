@@ -72,24 +72,46 @@ void testFan() {
 }
 
 boolean scanned = false;
+int mappingState = 0;
+int scanNumber = 0;
+const int numScans = 5;
+int numMoves = 0;
 void testMapping() {
-	if(!scanned && turret.scan()) {
-		scanned = true;
-	}
-	if(scanned) {
-		if(turret.setTurretAngle(0)) {
-			for(int i = 0; i < ((TURRET_MAX_ANGLE - TURRET_MIN_ANGLE) / TURRET_ANGLE_INCREMENT); i++) {
-				double x = turret.obstacleXVals[i];
-				double y = turret.obstacleYVals[i];
-				double realX = robotX + x;
-				double realY = robotY + y;
-				fieldMap.set(realX, realY, true);
-				turret.obstacleXVals[i] = 0; // reset the values
-				turret.obstacleYVals[i] = 0;
+	switch(mappingState) {
+		case 0:
+			if(turret.scanUltrasonic()) {
+				processObstacles();
+				scanNumber++;
+				if(scanNumber == numScans) {
+					mappingState++;
+					scanNumber = 0;
+				}
 			}
+			break;
+		case 1:
+			fieldMap.filter();
+			fieldMap.cleanUp();
+			mappingState++;
+			break;
+		case 2:
+			numMoves++;
+
+			if(numMoves >= 3) {
+				mappingState = -1;
+				break;
+			}
+
+			Serial.print("Map update# "); Serial.println(numMoves);
 			fieldMap.printMap();
-			while(1);
-		}
+			mappingState++;
+			break;
+		case 3:
+			if(moveToPoint(robotX + 24, robotY)) {
+				mappingState = 0;
+			}
+			break;
+		default:
+			break;
 	}
 }
 

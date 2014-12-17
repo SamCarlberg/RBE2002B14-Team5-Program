@@ -79,8 +79,7 @@ void Turret::setServoAngle(double angle){
 }
 
 
-boolean hitMax = false;
-boolean Turret::scan() {
+boolean Turret::scanUltrasonic() {
 	if(resetting) {
 		curAngle = TURRET_MIN_ANGLE;
 		resetting = !setTurretAngle(curAngle); // if we're not there, then we're still resettting
@@ -100,9 +99,9 @@ boolean Turret::scan() {
 	return false;
 }
 
-// boolean Turret::scan(){
-// 	scan(0, 360);
-// }
+boolean Turret::scan(){
+	scan(0, 360);
+}
 
 boolean Turret::scan(double inputMinTurretAngle, double inputMaxTurretAngle) {
 	int tempValue = -1;

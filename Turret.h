@@ -24,8 +24,8 @@
 #define TURRET_ANGLE_OFFSET -8
 #define TURRET_POWERLIMIT 50 //constrains to 30 - 150
 
-#define TURRET_POT_0ANGLE   949
-#define TURRET_POT_360ANGLE 444
+#define TURRET_POT_0ANGLE   960
+#define TURRET_POT_360ANGLE 456
 #define TURRET_ERROR_THRESHOLD 1
 
 #define SERVO_ANGLE_INCREMENT 5
@@ -76,6 +76,8 @@ public:
 	boolean scan(double inputMinTurretAngle, double inputMaxTurretAngle);
 
 	double quickScan();
+
+	boolean scanUltrasonic();
 	
 	// Processes IR data and tries to find the flame location
 	// Returns true once it completes
