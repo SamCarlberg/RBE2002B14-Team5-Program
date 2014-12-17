@@ -10,8 +10,8 @@
 
 #define ZERO 720
 #define MINUS_90 837
-#define ZERO_DEGREES 695.0
-#define THREE_SIXTY_DEGREE 205.0
+#define ZERO_DEGREES 798.0
+#define THREE_SIXTY_DEGREE 288.0
 
 class TenTurnPot {
 public:

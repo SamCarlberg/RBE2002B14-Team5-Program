@@ -64,11 +64,15 @@ boolean SwerveDrive::rotatePods(double angle, double tolerance) {
 		rearRight.encoder.reset();
 		return true;
 	}
-	double power = constrain(error*5.0 + 90, 0, 180);
-	double motorCorrection = (constrain(error*5.0 + 90, 0, 180) - 90)/5.0 + 90;
+	double power = constrain(error*4.0 + 90, 90 - 45, 90 + 45);
+	double motorCorrection = (power - 90)/5.0 + 90;
 	drive(motorCorrection);
 	swerveMotor.write(power);
 	return false;
+}
+
+void SwerveDrive::drivePods(double speed){
+	swerveMotor.write(constrain(speed, 90 - 35, 90 + 35));
 }
 
 int SwerveDrive::getAngle() { 
@@ -76,6 +80,11 @@ int SwerveDrive::getAngle() {
 }
 
 void SwerveDrive::drive(double power) {
+	frontLeft.encoder.reset();
+	frontRight.encoder.reset();
+	rearLeft.encoder.reset();
+	rearRight.encoder.reset();
+
 	frontRight.drive(power);
 	frontLeft.drive(power);
 	rearRight.drive(power);
@@ -99,7 +108,7 @@ void SwerveDrive::driveStraight(double power) {
 	double frPower = 180 - (power + KpStraight * pollGyro() * sin(toRad(getAngle() + frShift))); // inverted
 	double flPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + flShift));
 	double rrPower = 180 - (power + KpStraight * pollGyro() * sin(toRad(getAngle() + rrShift)));
-	double rlPower = power + KpStraight * pollGyro() * sin(toRad(getAngle() + rlShift));
+	double rlPower = 180 - (power + KpStraight * pollGyro() * sin(toRad(getAngle() + rlShift)));
 
 	frontRight.drive(constrain(frPower, 0, 180));
 	frontLeft.drive(constrain(flPower, 0, 180));

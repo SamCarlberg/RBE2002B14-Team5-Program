@@ -31,6 +31,8 @@ public:
 	// Tolerance is in degrees and defaults to 5
 	boolean rotatePods(double angle, double tolerance = 2);
 
+	void drivePods(double speed);
+
 	// Gets the current angle of the pods relative to the drive base
 	int getAngle();
 

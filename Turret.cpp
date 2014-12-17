@@ -15,7 +15,7 @@ boolean resetting = false;
 
 // PID variables
 // double Kp = 4.6, Ki = 0.022, Kd = 0.008;
-double Kp = -3.5, Ki = -0.03, Kd = -4;
+double Kp = -3, Ki = -0.04, Kd = -20;
 double accError = 0;
 double lastError = 0;
 
@@ -56,12 +56,16 @@ void Turret::getObstacleLocation() {
 boolean Turret::setTurretAngle(double angle) {
 	double error = constrain(angle, TURRET_MIN_LIMIT, TURRET_MAX_LIMIT) - getAngle();
 	// Serial.println(error);
-	if(abs(error) <= TURRET_ERROR_THRESHOLD) {
-		accError  = 0; // reset PID
-		lastError = 0; 
-		motor.write(90);
+	if(abs(error) < TURRET_ERROR_THRESHOLD) {
 		delay(100);
-		return true;
+		error = constrain(angle, TURRET_MIN_LIMIT, TURRET_MAX_LIMIT) - getAngle();
+		if(abs(error) < TURRET_ERROR_THRESHOLD) {
+			accError  = 0; // reset PID
+			lastError = 0; 
+			motor.write(90);
+			delay(100);
+			return true;
+		}
 	}
 	accError += error;
 	double power = Kp * error + Ki * accError + Kd * (error - lastError);
@@ -241,6 +245,7 @@ boolean Turret::scan(double inputMinTurretAngle, double inputMaxTurretAngle) {
 		case 9:
 			//Chillax
 			isFinished = true;
+			scan_State = 0;
 			break;
 
 		//default case to covered in the event of an emergency
@@ -256,8 +261,10 @@ boolean Turret::scan(double inputMinTurretAngle, double inputMaxTurretAngle) {
 //and returns either the angle where the candle may be
 //or -1 if no candle was found
 double Turret::quickScan(){
-	double tempAngle = -1;
+	double tempAngle = 0;
 	int tempValue = 0;
+
+	Serial.println(scan_State);
 
 	switch(scan_State){
 
@@ -274,7 +281,7 @@ double Turret::quickScan(){
 
 		//here we set the turret angle to a negative number to compensate for slack
 		case 1:
-			if(setTurretAngle(TURRET_MIN_ANGLE - 30)){
+			if(setTurretAngle(TURRET_MIN_ANGLE - 15)){
 				scan_State++;
 			}
 			break;
@@ -299,12 +306,14 @@ double Turret::quickScan(){
 			if(scan_TurretAngle >= TURRET_MAX_ANGLE){
 				scan_State++;
 			} else {
+				scan_TurretAngle += TURRET_ANGLE_INCREMENT;
 				scan_State = 2;
 			}
 			break;
 
 		case 4:
 			tempAngle = current_HighestAngle;
+			scan_State = 0;
 			break;
 
 		//default case to covered in the event of an emergency
