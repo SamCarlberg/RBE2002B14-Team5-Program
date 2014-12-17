@@ -55,8 +55,7 @@ void SwerveDrive::init() {
 int turningPower = 0;
 
 boolean SwerveDrive::rotatePods(double angle, double tolerance) {
-	double error = angle - getAngle();
-	Serial.println(error);
+	double error = getAngle() - angle;
 	if(abs(error) <= tolerance) {
 		swerveMotor.write(90);
 		drive(90);
@@ -73,8 +72,7 @@ boolean SwerveDrive::rotatePods(double angle, double tolerance) {
 	return false;
 }
 
-int SwerveDrive::getAngle() {
-	// Serial.print(analogRead(SWERVE_POT_PIN));Serial.print(pot.getAngle());
+int SwerveDrive::getAngle() { 
 	return pot.getAngle();
 }
 
